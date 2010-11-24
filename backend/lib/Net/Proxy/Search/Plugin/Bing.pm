@@ -4,7 +4,7 @@ use strict;
 use base qw(Net::Proxy::Search::Plugin);
 use List::MoreUtils qw (uniq);
 
-my $BING_REGEXP = qr/<h3>\s*<a\s+href=["']([^'"]+)/;
+my $BING_REGEXP = qr/<h3>\s*<a\s+href=["']([^'"]+)/i;
 
 sub next
 {
@@ -15,7 +15,7 @@ sub next
 		$self->{offset} += $self->{offset} ? 10 : 1;
 		
 		$page = $self->{ua}->get('http://www.bing.com/search?q='.$self->{query}.'&first='.$self->{offset})->content;
-		@{$self->{links}} = $page =~ /$BING_REGEXP/gi
+		@{$self->{links}} = $page =~ /$BING_REGEXP/g
 			or return $self->_empty;
 			
 		if(uniq(@{$self->{links}}, @{$self->{tmp_links}}) == @{$self->{tmp_links}}) {
@@ -27,7 +27,7 @@ sub next
 	}
 	
 	$page = $self->{ua}->get( shift @{$self->{links}} )->content;
-	my @result = $page =~ /$self->SUPER::REGEXP/g;
+	my @result = $page =~ /${ \($self->SUPER::REGEXP) }/g;
 }
 
 1;
