@@ -1,8 +1,8 @@
 use strict;
 use lib('lib');
-use Net::Proxy::Search::Plugin::Bing;
+use Net::Proxy::Search::Plugin::Yandex;
 
-my $s = Net::Proxy::Search::Plugin::Bing->new('proxy list');
+my $s = Net::Proxy::Search::Plugin::Yandex->new('proxy list');
 
 until($s->empty) {
 	my @res = $s->next;

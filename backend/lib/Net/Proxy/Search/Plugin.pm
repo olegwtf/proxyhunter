@@ -5,7 +5,7 @@ use Carp;
 use LWP::UserAgent;
 use URI::Escape;
 
-use constant REGEXP => qr/([a-z0-9.-]+?:\d+)/;
+use constant REGEXP => qr/((?:\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|[a-z0-9.-]+?\.[a-z]{2,10}):\d{2,5})/;
 
 $URI::Escape::escapes{' '} = '+';
 
