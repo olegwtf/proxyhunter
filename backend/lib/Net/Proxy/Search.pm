@@ -1,3 +1,0 @@
-package Net::Proxy::Search;
-
-

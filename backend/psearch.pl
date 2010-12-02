@@ -29,7 +29,7 @@ while(%plugins) {
 			($host, $port) = split /:/, $proxy;
 			
 			if($host !~ $ip_regexp) {
-				# hostname to ip to more efficient work with database
+				# hostname to ip for more efficient work with database
 				@hostent = gethostbyname($host)
 					or next;
 				$host = join('.', unpack('C4', $hostent[4]));
