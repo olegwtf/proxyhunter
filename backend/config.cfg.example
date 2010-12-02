@@ -1,0 +1,6 @@
+# database
+db_host = localhost
+db_name = proxyhunter
+db_user = root
+db_pass = lN02XdPa
+
