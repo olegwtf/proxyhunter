@@ -11,7 +11,7 @@ my $cfg = read_config_file('config.cfg');
 my $db = DBI->connect('DBI:mysql:dbname=' .$cfg->{db_name}. '; host=' .$cfg->{db_host}, $cfg->{db_user}, $cfg->{db_pass})
 	or die $DBI::errstr;
 my %sth = (
-	#                                0    1    2       3    4      5
+	#                                 0     1       2        3        4       5
 	selectq => $db->prepare('SELECT `id`, `host`, `port`, `fails`, `type`, `worked` FROM `proxylist` WHERE `in_progress`=0 ORDER BY `checked`, `checkdate` LIMIT ' . $cfg->{select_limit}),
 	#                                                                                  generate placeholders: ?, ?, ..., ?
 	setprgq => $db->prepare('UPDATE `proxylist` SET `in_progress`=1 WHERE `id` IN (' . join(',', map('?', 1..$cfg->{select_limit})) . ')'),
