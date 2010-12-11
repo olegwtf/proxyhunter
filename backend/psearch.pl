@@ -12,6 +12,8 @@ my $db = DBI->connect('DBI:mysql:dbname=' .$cfg->{db_name}. '; host=' .$cfg->{db
 	or die $DBI::errstr;
 my $sth = $db->prepare("INSERT IGNORE INTO `proxylist` SET `host`=?, `port`=?");
 
+$SIG{INT} = $SIG{TERM} = sub { exit };
+
 my $plugins = Net::Proxy::Search::Plugins->new();
 $plugins->load();
 $plugins->init();
@@ -43,5 +45,7 @@ while(%plugins) {
 	}
 }
 
-$sth->finish;
-$db->disconnect;
+END {
+	$sth->finish;
+	$db->disconnect;
+}

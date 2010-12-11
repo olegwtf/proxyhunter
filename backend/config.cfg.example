@@ -4,3 +4,7 @@ db_name = proxyhunter
 db_user = root
 db_pass = lN02XdPa
 
+# work process
+workers = 100
+select_limit = 10
+fails_to_delete = 3
