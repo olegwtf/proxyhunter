@@ -2,9 +2,14 @@
 db_host = localhost
 db_name = proxyhunter
 db_user = root
-db_pass = lN02XdPa
+db_pass = 241
 
-# work process
-workers = 100
+# working process
+workers = 30
 select_limit = 10
 fails_to_delete = 3
+search_query[0] = proxy list
+search_query[1] = socks proxy list
+search_query[2] = socks5 proxy
+search_query[3] = socks4 proxy
+search_query[4] = free proxy list
