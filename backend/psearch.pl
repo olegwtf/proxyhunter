@@ -9,6 +9,28 @@ use Net::Proxy::Search::Plugins;
 use Config::File 'read_config_file';
 
 my $cfg = read_config_file('config.cfg');
+
+if($ARGV[0] eq '-d') {
+	# demonizing
+	if($cfg->{pid}{search} && -e $cfg->{pid}{search}) {
+		open FH, $cfg->{pid}{search};
+		chomp(my $pid = <FH>);
+		close FH;
+		
+		if(kill 0, $pid) {
+			die "Already running with pid $pid\n";
+		}
+	}
+	
+	require Proc::Daemon;
+	
+	Proc::Daemon->new(
+		child_STDERR => $cfg->{'log'}{search} ? $cfg->{'log'}{search} : '/dev/null',
+		pid_file => $cfg->{pid}{search},
+		work_dir => '.',
+	)->Init();
+}
+
 my $db = DBI->connect('DBI:mysql:dbname=' .$cfg->{db_name}. '; host=' .$cfg->{db_host}, $cfg->{db_user}, $cfg->{db_pass})
 	or die $DBI::errstr;
 my $sth = $db->prepare("INSERT IGNORE INTO `proxylist` SET `host`=?, `port`=?");
@@ -52,6 +74,8 @@ while(1) {
 }
 
 END {
-	$sth->finish;
-	$db->disconnect;
+	if($db) {
+		$sth->finish;
+		$db->disconnect;
+	}
 }
