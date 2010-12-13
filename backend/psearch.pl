@@ -23,9 +23,12 @@ if($ARGV[0] eq '-d') {
 	}
 	
 	require Proc::Daemon;
+	if($Proc::Daemon::VERSION < 0.05) {
+		die "Proc::Daemon version 0.05 required--this is only version $Proc::Daemon::VERSION";
+	}
 	
 	Proc::Daemon->new(
-		child_STDERR => $cfg->{'log'}{search} ? $cfg->{'log'}{search} : '/dev/null',
+		child_STDERR => $cfg->{log}{search} ? $cfg->{log}{search} : '/dev/null',
 		pid_file => $cfg->{pid}{search},
 		work_dir => '.',
 	)->Init();
