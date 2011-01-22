@@ -37,13 +37,13 @@ if($ARGV[0] eq '-d') {
 my $db = DBI->connect('DBI:mysql:dbname=' .$cfg->{db_name}. '; host=' .$cfg->{db_host}, $cfg->{db_user}, $cfg->{db_pass})
 	or die $DBI::errstr;
 my %sth = (
-	selectcq => $db->prepare(
+	selectcq => $db->prepare( # check
 	#               0     1       2        3        4       5 
 		'SELECT `id`, `host`, `port`, `fails`, `type`, `worked` FROM `proxylist`
 		WHERE `in_progress`=0 AND TIMESTAMPDIFF(SECOND, `checkdate`, NOW()) >= ' . $cfg->{min_recheck_interval} . '
 		ORDER BY `checked`, `checkdate` LIMIT ' . $cfg->{select_limit}
 	),
-	selectrq => $db->prepare(
+	selectrq => $db->prepare( # recheck
 		'SELECT `id`, `host`, `port`, `fails`, `type`, `worked` FROM `proxylist`
 		WHERE `in_progress`=0 AND `checked`=1 AND TIMESTAMPDIFF(SECOND, `checkdate`, NOW()) >= ' . $cfg->{min_recheck_interval} . '
 		ORDER BY `checkdate` LIMIT ' . $cfg->{select_limit}
@@ -67,8 +67,8 @@ my @workers;
 
 for (1 .. $cfg->{check_workers}+$cfg->{recheck_workers}) {
 	push @workers, async {
-		my $selectkey = shift;
 		no strict 'refs';
+		my $selectkey = shift;
 	
 		my $pt = Net::Proxy::Type->new(http_strict => 1);
 		my ($list, $type, $row, @ids);
@@ -76,7 +76,7 @@ for (1 .. $cfg->{check_workers}+$cfg->{recheck_workers}) {
 		while(1) {
 			if(int( $sth{$selectkey}->execute() )) {
 				# select result not empty
-				$list = $sth{selectq}->fetchall_arrayref;
+				$list = $sth{$selectkey}->fetchall_arrayref;
 				
 				# set in_progress to true for selected proxy list
 				@ids = map $_->[0], @$list;
