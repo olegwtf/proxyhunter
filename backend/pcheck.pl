@@ -5,7 +5,7 @@ use Coro::Select;
 use Coro::Timer;
 use Coro;
 use DBI;
-use Net::Proxy::Type 0.02 ':types';
+use Net::Proxy::Type 0.03 ':types';
 use Config::File 'read_config_file';
 
 my $cfg = read_config_file('config.cfg');
@@ -70,7 +70,7 @@ for (1 .. $cfg->{check_workers}+$cfg->{recheck_workers}) {
 		no strict 'refs';
 		my $selectkey = shift;
 	
-		my $pt = Net::Proxy::Type->new(http_strict => 1);
+		my $pt = Net::Proxy::Type->new(http_strict => 1, noauth => 1);
 		my ($list, $type, $row, @ids);
 		
 		while(1) {
