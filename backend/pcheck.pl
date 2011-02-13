@@ -62,6 +62,7 @@ $SIG{INT} = $SIG{TERM} = sub {
 };
 
 my @workers;
+$db->do("UPDATE `proxylist` SET `in_progress`=0 WHERE `in_progress`<>0");
 
 for (1 .. $cfg->{check_workers}+$cfg->{recheck_workers}) {
 	push @workers, async {
