@@ -35,8 +35,7 @@ start()
 	if is_checker_running
 	then
 		echo -n "Proxy checker already running with pid " >&2
-		cat $PID_DIR/check.pid
-		exit 1
+		cat $PID_DIR/check.pid >&2
 	else
 		echo "Starting proxy checker"
 		su -c "./pcheck.pl -d" $USER
@@ -45,8 +44,7 @@ start()
 	if is_searcher_running
 	then
 		echo -n "Proxy searcher already running with pid " >&2
-		cat $PID_DIR/search.pid
-		exit 1
+		cat $PID_DIR/search.pid >&2
 	else
 		echo "Starting proxy searcher"
 		su -c "./psearch.pl -d" $USER
