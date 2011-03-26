@@ -58,7 +58,7 @@ stop()
 	if is_checker_running
 	then
 		echo "Stopping proxy checker"
-		kill -INT `cat $PID_DIR/checker.pid`
+		kill -INT `cat $PID_DIR/check.pid`
 	else
 		echo "Proxy checker not running"
 	fi
