@@ -1,0 +1,91 @@
+#!/bin/sh
+
+ROOT=/home/oleg/proxyhunter
+PID_DIR=/home/oleg/proxyhunter/pids
+USER=oleg
+
+if [ `id -u` -ne 0 ]
+then
+	echo "you should be root or svn user to run this script" >&2
+	exit 1;
+fi
+
+is_running()
+{
+	pid=`cat $1 2>/dev/null`
+	[ -r "$pid" ] && return 1
+	
+	kill -0 $pid 2>/dev/null
+}
+
+is_checker_running()
+{
+	is_running $PID_DIR/check.pid
+}
+
+is_searcher_running()
+{
+	is_running $PID_DIR/search.pid
+}
+
+start()
+{
+	cd $ROOT;
+	
+	if is_checker_running
+	then
+		echo -n "Proxy checker already running with pid " >&2
+		cat $PID_DIR/check.pid
+		exit 1
+	else
+		echo "Starting proxy checker"
+		su -c "./pcheck.pl -d" $USER
+	fi
+	
+	if is_searcher_running
+	then
+		echo -n "Proxy searcher already running with pid " >&2
+		cat $PID_DIR/search.pid
+		exit 1
+	else
+		echo "Starting proxy searcher"
+		su -c "./psearch.pl -d" $USER
+	fi
+}
+
+stop()
+{
+	if is_checker_running
+	then
+		echo "Stopping proxy checker"
+		kill -INT `cat $PID_DIR/checker.pid`
+	else
+		echo "Proxy checker not running"
+	fi
+	
+	if is_searcher_running
+	then
+		echo "Stopping proxy searcher"
+		kill -INT `cat $PID_DIR/search.pid`
+	else
+		echo "Proxy searcher not running"
+	fi
+}
+
+restart()
+{
+	stop
+	start
+}
+
+case "$1" in
+	start)
+		start;;
+	stop)
+		stop;;
+	restart)
+		restart;;
+	*)
+		echo $"Usage: $0 {start|stop|restart}" >&2
+		exit 1
+esac
