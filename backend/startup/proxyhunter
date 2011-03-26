@@ -6,7 +6,7 @@ USER=oleg
 
 if [ `id -u` -ne 0 ]
 then
-	echo "you should be root or svn user to run this script" >&2
+	echo "you should be root to run this script" >&2
 	exit 1;
 fi
 
