@@ -1,0 +1,16 @@
+proxyhunter - yet another proxy hunter
+
+Allows to search and check free proxyes.
+
+Features:
+  -Speed (many workers in parallel using non-blocking I/O)
+  -Supports HTTP, SOCKS4 and SOCKS5 proxy types
+
+Installation:
+  -Rename config.cfg.example to config.cfg and edit if needed
+  -Load sqldump/dump.sql to MySQL database
+  -Start psearch.pl and pcheck.pl (both supports -d option - demonization)
+
+Dependencies:
+  -Perl
+  -MySQL
