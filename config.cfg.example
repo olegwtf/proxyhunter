@@ -4,12 +4,17 @@ db_name = proxyhunter
 db_user = root
 db_pass = 241
 
-# working process
+# check process
 check_workers = 30
 recheck_workers = 5
 select_limit = 10
 fails_to_delete = 3
 min_recheck_interval = 300
+
+# speed check
+min_speed_recheck_interval = 1800
+speed_check_workers = 5
+speed_check_url = http://mirror.yandex.ru/debian/ls-lR.gz
 
 # logs when demonized
 log[search] = logs/search.log
