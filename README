@@ -3,7 +3,7 @@ proxyhunter - yet another proxy hunter
 Allows to search and check free proxyes.
 
 Features:
-  -Speed (many workers in parallel using non-blocking I/O)
+  -Speed (many workers in parallel using Coro)
   -Supports HTTP, SOCKS4 and SOCKS5 proxy types
 
 Installation:
@@ -13,4 +13,10 @@ Installation:
 
 Dependencies:
   -Perl
+    Coro
+    Net::Proxy::Type >= 0.04
+    DBI
+      DBD::mysql
+    Config::File
+    Proc::Daemon (optional)
   -MySQL

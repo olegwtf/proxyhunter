@@ -5,7 +5,7 @@ use Coro::Select;
 use Coro::Timer;
 use Coro;
 use DBI;
-use Net::Proxy::Type 0.03 ':types';
+use Net::Proxy::Type 0.04 ':types';
 use Config::File 'read_config_file';
 
 my $cfg = read_config_file('config.cfg');
@@ -48,7 +48,9 @@ my %sth = (
 	),
 	#                                                                                                  generate placeholders
 	setprgq => $db->prepare('UPDATE `proxylist` SET `in_progress`=1 WHERE `id` IN (' . join(',', map('?', 1..$cfg->{select_limit})) . ')'),
-	updateq => $db->prepare('UPDATE `proxylist` SET `checked`=1, `worked`=1, `checkdate`=NOW(), `in_progress`=0, `fails`=?, `type`=? WHERE `id`=?'),
+	updateq => $db->prepare(
+		'UPDATE `proxylist` SET `checked`=1, `worked`=1, `checkdate`=NOW(), `in_progress`=0, `fails`=?, `type`=?, `conn_time`=? WHERE `id`=?'
+	),
 	deleteq => $db->prepare('DELETE FROM `proxylist` WHERE `id`=?')
 );
 
@@ -70,7 +72,7 @@ for (1 .. $cfg->{check_workers}+$cfg->{recheck_workers}) {
 		my $selectkey = shift;
 	
 		my $pt = Net::Proxy::Type->new(http_strict => 1, noauth => 1);
-		my ($list, $type, $row, @ids);
+		my ($list, $conn_time, $type, $row, @ids);
 		
 		while(1) {
 			if(int( $sth{$selectkey}->execute() )) {
@@ -84,7 +86,7 @@ for (1 .. $cfg->{check_workers}+$cfg->{recheck_workers}) {
 				$sth{setprgq}->execute(@ids);
 				
 				foreach $row (@$list) {
-					$type = $pt->get($row->[1], $row->[2], $row->[4] ne 'DEAD_PROXY' ? &{$row->[4]} : undef);
+					($conn_time, $type) = $pt->get($row->[1], $row->[2], $row->[4] ne 'DEAD_PROXY' ? &{$row->[4]} : undef);
 					
 					if($type == DEAD_PROXY || $type == UNKNOWN_PROXY) {
 						$row->[3]++;
@@ -93,12 +95,12 @@ for (1 .. $cfg->{check_workers}+$cfg->{recheck_workers}) {
 							$sth{deleteq}->execute($row->[0]);
 						}
 						else {
-							$sth{updateq}->execute($row->[3], 'DEAD_PROXY', $row->[0]);
+							$sth{updateq}->execute($row->[3], 'DEAD_PROXY', $conn_time, $row->[0]);
 						}
 					}
 					else {
 						# working proxy
-						$sth{updateq}->execute(0, $Net::Proxy::Type::NAME{$type}, $row->[0]);
+						$sth{updateq}->execute(0, $Net::Proxy::Type::NAME{$type}, $conn_time, $row->[0]);
 					}
 				}
 			}
