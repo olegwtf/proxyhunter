@@ -86,7 +86,7 @@ for (1 .. $cfg->{check_workers}+$cfg->{recheck_workers}) {
 				$sth{setprgq}->execute(@ids);
 				
 				foreach $row (@$list) {
-					($conn_time, $type) = $pt->get($row->[1], $row->[2], $row->[4] ne 'DEAD_PROXY' ? &{$row->[4]} : undef);
+					($type, $conn_time) = $pt->get($row->[1], $row->[2], $row->[4] ne 'DEAD_PROXY' ? &{$row->[4]} : undef);
 					
 					if($type == DEAD_PROXY || $type == UNKNOWN_PROXY) {
 						$row->[3]++;
