@@ -1,14 +1,19 @@
 #!/usr/bin/perl
 
 use strict;
-use Coro::Select;
+use Coro::LWP;
 use Coro::Timer;
 use Coro;
 use DBI;
 use Net::Proxy::Type 0.04 ':types';
+use LWP::UserAgent;
+use LWP::Protocol::socks;
+use LWP::Protocol::socks4;
+use Time::HiRes;
 use Config::File 'read_config_file';
 
 my $cfg = read_config_file('config.cfg');
+my %scheme = (HTTP_PROXY, 'http', SOCKS5_PROXY, 'socks', SOCKS4_PROXY, 'socks4');
 
 if($ARGV[0] eq '-d') {
 	# demonizing
@@ -49,7 +54,7 @@ my %sth = (
 	#                                                                                                  generate placeholders
 	setprgq => $db->prepare('UPDATE `proxylist` SET `in_progress`=1 WHERE `id` IN (' . join(',', map('?', 1..$cfg->{select_limit})) . ')'),
 	updateq => $db->prepare(
-		'UPDATE `proxylist` SET `checked`=1, `worked`=1, `checkdate`=NOW(), `in_progress`=0, `fails`=?, `type`=?, `conn_time`=? WHERE `id`=?'
+		'UPDATE `proxylist` SET `checked`=1, `worked`=1, `checkdate`=NOW(), `in_progress`=0, `fails`=?, `type`=?, `conn_time`=?, `speed`=? WHERE `id`=?'
 	),
 	deleteq => $db->prepare('DELETE FROM `proxylist` WHERE `id`=?')
 );
@@ -72,7 +77,8 @@ for (1 .. $cfg->{check_workers}+$cfg->{recheck_workers}) {
 		my $selectkey = shift;
 	
 		my $pt = Net::Proxy::Type->new(http_strict => 1, noauth => 1);
-		my ($list, $conn_time, $type, $row, @ids);
+		my $ua = LWP::UserAgent->new(agent => 'Mozilla 5.0', timeout => 10);
+		my ($list, $conn_time, $type, $row, @ids, $speed);
 		
 		while(1) {
 			if(int( $sth{$selectkey}->execute() )) {
@@ -95,12 +101,19 @@ for (1 .. $cfg->{check_workers}+$cfg->{recheck_workers}) {
 							$sth{deleteq}->execute($row->[0]);
 						}
 						else {
-							$sth{updateq}->execute($row->[3], 'DEAD_PROXY', $conn_time, $row->[0]);
+							$sth{updateq}->execute($row->[3], 'DEAD_PROXY', $conn_time, -1, $row->[0]);
 						}
 					}
 					else {
 						# working proxy
-						$sth{updateq}->execute(0, $Net::Proxy::Type::NAME{$type}, $conn_time, $row->[0]);
+						if ($cfg->{speed_check_url}) {
+							$speed = get_speed($ua, "$scheme{$type}://$row->[1]:$row->[2]", $cfg->{speed_check_url});
+						}
+						else {
+							$speed = 0;
+						}
+						
+						$sth{updateq}->execute(0, $Net::Proxy::Type::NAME{$type}, $conn_time, $speed, $row->[0]);
 					}
 				}
 			}
@@ -115,3 +128,38 @@ $_->join foreach @workers;
 
 # do normal exit --> go to signal handler
 kill 15, $$;
+
+
+sub get_speed {
+	my ($ua, $proxy, $url) = @_;
+	$ua->proxy(http => $proxy);
+	
+	my @speed_variations;
+	my $received_bytes = 0;
+	my $curspeed;
+	my $maxbytes = 1024*1024;
+	my $start = Time::HiRes::time();
+	
+	my $resp = $ua->get($url, ':content_cb' => sub {
+		$received_bytes += length($_[0]);
+		$curspeed = $received_bytes / (Time::HiRes::time() - $start);
+		die if $received_bytes > $maxbytes;
+	
+		if (@speed_variations == 10) {
+			my $ok = 1;
+			for my $s (@speed_variations) {
+				if (abs($s - $curspeed) > 5 * 1024) {
+					$ok = 0;
+					last;
+				}
+			}
+			
+			die if $ok;
+			shift @speed_variations;
+		}
+		
+		push @speed_variations, $curspeed;
+	});
+	
+	return $resp->code > 299 ? -1 : $curspeed;
+}

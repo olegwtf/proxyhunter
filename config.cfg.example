@@ -13,7 +13,6 @@ min_recheck_interval = 300
 
 # speed check
 min_speed_recheck_interval = 1800
-speed_check_workers = 5
 speed_check_url = http://mirror.yandex.ru/debian/ls-lR.gz
 
 # logs when demonized
