@@ -5,7 +5,7 @@ use Coro::LWP;
 use Coro::Timer;
 use Coro;
 use DBI;
-use Net::Proxy::Type 0.04 ':types';
+use Net::Proxy::Type 0.06 ':types';
 use LWP::UserAgent;
 use LWP::Protocol::socks;
 use LWP::Protocol::socks4;
@@ -13,7 +13,7 @@ use Time::HiRes;
 use Config::File 'read_config_file';
 
 my $cfg = read_config_file('config.cfg');
-my %scheme = (HTTP_PROXY, 'http', SOCKS5_PROXY, 'socks', SOCKS4_PROXY, 'socks4');
+my %scheme = (HTTP_PROXY, 'http', SOCKS5_PROXY, 'socks', SOCKS4_PROXY, 'socks4', HTTPS_PROXY, 'http');
 
 if($ARGV[0] eq '-d') {
 	# demonizing

@@ -6,7 +6,7 @@ CREATE TABLE `proxylist` (
   `worked` tinyint(1) NOT NULL DEFAULT '0',
   `checkdate` datetime NOT NULL DEFAULT '1980-01-01 00:00:00',
   `fails` tinyint(1) NOT NULL DEFAULT '0',
-  `type` enum('HTTP_PROXY','SOCKS4_PROXY','SOCKS5_PROXY','DEAD_PROXY') NOT NULL DEFAULT 'DEAD_PROXY',
+  `type` enum('HTTPS_PROXY','HTTP_PROXY','SOCKS4_PROXY','SOCKS5_PROXY','DEAD_PROXY') NOT NULL DEFAULT 'DEAD_PROXY',
   `in_progress` tinyint(1) NOT NULL DEFAULT '0',
   `conn_time` smallint(5) unsigned NOT NULL,
   `speed` int(10) unsigned NOT NULL DEFAULT '0',
