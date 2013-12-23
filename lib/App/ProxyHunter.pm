@@ -18,7 +18,8 @@ use Getopt::Long;
 use App::ProxyHunter::Config;
 use App::ProxyHunter::Model;
 
-use constant CORO_DELAY => 5;
+use constant CORO_DELAY   => 5;
+use constant SELECT_LIMIT => 100;
 
 sub start {
 	my $class = shift;
@@ -295,6 +296,19 @@ sub _start_speed_checkers {
 			}
 		}
 	}
+}
+
+sub _get_queue {
+	my ($class, $model, $conditions, $rules) = @_;
+	
+	$conditions->{in_progress} = 0;
+	$rules->{limit} = SELECT_LIMIT;
+	
+	my @rows = $model->search('proxy', $conditions, $rules);
+	my @ids = map { $_->id } @rows;
+	
+	$model->update('proxy', {in_progress => 1}, {id => \@ids});
+	return @rows;
 }
 
 sub _check {
