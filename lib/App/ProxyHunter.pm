@@ -416,5 +416,10 @@ search = {
 		"socks5 proxy",
 		"socks4 proxy",
 		"free proxy list"
+	],
+	# which search engines to use
+	# should be in App::ProxyHunter::SearchEngine:: namespace
+	engines: [
+		"Google", "Bing", "Yandex"
 	]
 }

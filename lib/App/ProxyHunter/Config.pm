@@ -73,5 +73,6 @@ package ProxyHunter::Config::Searcher;
 use Mo 'default';
 
 has querylist => (default => ['free proxy']);
+has engines   => ['Google', 'Bing', 'Yandex'];
 
 1;
