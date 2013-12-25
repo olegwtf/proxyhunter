@@ -4,6 +4,7 @@ use strict;
 use Coro::Select;
 use Coro::LWP;
 use Coro::Timer;
+use Coro::Util;
 use Coro::PatchSet;
 use Coro;
 use LWP::UserAgent;
@@ -14,6 +15,7 @@ use Net::Proxy::Type ':types';
 use Carp;
 use Time::HiRes;
 use DateTime;
+use List::Util 'shuffle';
 use Getopt::Long;
 use App::ProxyHunter::Config;
 use App::ProxyHunter::Model;
@@ -68,6 +70,12 @@ sub start {
 		schema_class => 'App::ProxyHunter::Model::Schema::' . $config->db->driver
 	);
 	
+	for my $engine (@{$config->searcher->engines}) {
+		$engine = 'App::ProxyHunter::SearchEngine::'.$engine;
+		eval "require $engine"
+			or croak "Can't load search engine module $engine: $@";
+	}
+	
 	if (defined $daemon) {
 		eval {
 			require Proc::Daemon;
@@ -82,8 +90,8 @@ sub start {
 	}
 	
 	$model->update('proxy', {in_progress => 0}); # clean
-	my @coros;
 	
+	my @coros;
 	push @coros, $class->_start_checkers($config, $model);
 	push @coros, $class->_start_recheckers($config, $model);
 	
@@ -117,7 +125,7 @@ sub _start_checkers {
 						next;
 					}
 					
-					unless (@queue = $class->_get_queue({checked => 0}, {order_by => 'check_date'})) {
+					unless (@queue = $class->_get_queue($model, {checked => 0}, {order_by => 'checkdate'})) {
 						$delay = CORO_DELAY;
 						Coro::Timer::sleep $delay;
 						$delay = 0;
@@ -128,11 +136,11 @@ sub _start_checkers {
 				my $proxy = shift @queue;
 				my ($type, $conn_time) = $class->_check($type_checker, $proxy)
 					or do {
-						$proxy->delelete();
+						$proxy->delete();
 						next;
 					};
 				
-				$proxy->type($type);
+				$proxy->set('type', $type); # deflate
 				$proxy->conn_time($conn_time);
 				
 				if ($speed_checker) {
@@ -143,12 +151,12 @@ sub _start_checkers {
 						};
 					
 					$proxy->speed($speed);
-					$proxy->speed_check_date(DateTime->now(time_zone => 'local'));
+					$proxy->speed_checkdate(DateTime->now(time_zone => 'local'));
 				}
 				
 				$proxy->checked(1);
 				$proxy->worked(1);
-				$proxy->check_date(DateTime->now(time_zone => 'local'));
+				$proxy->checkdate(DateTime->now(time_zone => 'local'));
 				$proxy->in_progress(0);
 				$proxy->fails(0);
 				$proxy->update();
@@ -180,7 +188,7 @@ sub _start_recheckers {
 				}
 				
 				unless (@queue) {
-					unless (@queue = $class->_get_queue({checked => 1}, {order_by => 'check_date'})) {
+					unless (@queue = $class->_get_queue($model, {checked => 1}, {order_by => 'checkdate'})) {
 						$delay = CORO_DELAY;
 						Coro::Timer::sleep $delay;
 						$delay = 0;
@@ -188,7 +196,7 @@ sub _start_recheckers {
 					}
 					
 					my $sec_after_last_check = DateTime->now(time_zone => 'local')->
-							subtract_datetime_absolute($queue[0]->check_date)->seconds;
+							subtract_datetime_absolute($queue[0]->checkdate)->seconds;
 					
 					if ($sec_after_last_check < $config->rechecker->interval) {
 						$delay = $config->rechecker->interval - $sec_after_last_check;
@@ -201,11 +209,11 @@ sub _start_recheckers {
 				my $proxy = shift @queue;
 				my $fail;
 				if (my ($type, $conn_time) = $class->_check($type_checker, $proxy)) {
-					$proxy->type($type);
+					$proxy->set('type', $type);
 					$proxy->conn_time($conn_time);
 					
 					if ($speed_checker) {
-						if (my $speed = $class->_check_speed($speed_checker, $config->speed_check->url, $proxy)) {
+						if (my $speed = $class->_check_speed($speed_checker, $config->speed_checker->url, $proxy)) {
 							$proxy->speed($speed);
 						}
 						else {
@@ -213,7 +221,7 @@ sub _start_recheckers {
 							$proxy->speed(0);
 						}
 						
-						$proxy->speed_check_date(DateTime->now(time_zone => 'local'));
+						$proxy->speed_checkdate(DateTime->now(time_zone => 'local'));
 					}
 				}
 				else {
@@ -222,7 +230,7 @@ sub _start_recheckers {
 				
 				if ($fail) {
 					$proxy->fails($proxy->fails+1);
-					if ($proxy->fails > $config->recheck->fails_before_delete) {
+					if ($proxy->fails > $config->rechecker->fails_before_delete) {
 						$proxy->delete();
 						next;
 					}
@@ -231,7 +239,7 @@ sub _start_recheckers {
 					$proxy->fails(0);
 				}
 				
-				$proxy->check_date(DateTime->now(time_zone => 'local'));
+				$proxy->checkdate(DateTime->now(time_zone => 'local'));
 				$proxy->in_progress(0);
 				$proxy->update();
 			}
@@ -259,7 +267,7 @@ sub _start_speed_checkers {
 				}
 				
 				unless (@queue) {
-					unless (@queue = $class->_get_queue({checked => 1}, {order_by => 'speed_check_date'})) {
+					unless (@queue = $class->_get_queue($model, {checked => 1}, {order_by => 'speed_checkdate'})) {
 						$delay = CORO_DELAY;
 						Coro::Timer::sleep $delay;
 						$delay = 0;
@@ -267,7 +275,7 @@ sub _start_speed_checkers {
 					}
 					
 					my $sec_after_last_check = DateTime->now(time_zone => 'local')->
-							subtract_datetime_absolute($queue[0]->speed_check_date)->seconds;
+							subtract_datetime_absolute($queue[0]->speed_checkdate)->seconds;
 					
 					if ($sec_after_last_check < $config->speed_checker->interval) {
 						$delay = $config->speed_checker->interval - $sec_after_last_check;
@@ -290,9 +298,48 @@ sub _start_speed_checkers {
 					$proxy->speed(0);
 				}
 				
-				$proxy->speed_check_date(DateTime->now(time_zone => 'local'));
+				$proxy->speed_checkdate(DateTime->now(time_zone => 'local'));
 				$proxy->in_progress(0);
 				$proxy->update();
+			}
+		}
+	}
+}
+
+sub _start_searcher {
+	my ($class, $config, $model) = @_;
+	
+	async {
+		while (1) {
+			my @querylist = shuffle @{$config->searcher->querylist};
+			
+			my @engines;
+			my $i = 0;
+			for my $engine (@{$config->searcher->engines}) {
+				push @engines, $engine->new(query => $querylist[$i++ % @querylist]);
+			}
+			
+			my $proxylist;
+			while (@engines) {
+				for ($i=$#engines; $i>=0; $i--) {
+					unless ($proxylist = $engines[$i]->next) {
+						splice @engines, $i, 1;
+						next;
+					}
+					
+					for my $proxy (@$proxylist) {
+						my ($host, $port) = split /:/, $proxy;
+						$host = Coro::Util::inet_aton($host) or next;
+						$host = join('.', unpack('C4', $host));
+						eval {
+							# ignore duplicates
+							$model->fast_insert('proxy', {
+								host => $host,
+								port => $port
+							});
+						}
+					}
+				}
 			}
 		}
 	}
@@ -304,10 +351,16 @@ sub _get_queue {
 	$conditions->{in_progress} = 0;
 	$rules->{limit} = SELECT_LIMIT;
 	
-	my @rows = $model->search('proxy', $conditions, $rules);
-	my @ids = map { $_->id } @rows;
+	my $rows = $model->search('proxy', $conditions, $rules);
+	my @rows;
 	
-	$model->update('proxy', {in_progress => 1}, {id => \@ids});
+	while (my $proxy = $rows->next) {
+		$proxy->in_progress(1);
+		$proxy->update();
+		
+		push @rows, $proxy;
+	}
+	
 	return @rows;
 }
 
@@ -379,8 +432,6 @@ sub _check_speed {
 }
 
 1;
-
-__END__
 
 __DATA__
 db = {

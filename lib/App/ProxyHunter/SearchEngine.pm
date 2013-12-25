@@ -1,6 +1,6 @@
 package App::ProxyHunter::SearchEngine;
 
-use Mo qw'is default required build';
+use Mo qw'is default required coerce';
 use Carp;
 use URI::Escape;
 use LWP::UserAgent;
@@ -8,14 +8,10 @@ use LWP::UserAgent;
 $URI::Escape::escapes{' '} = '+';
 
 has ua    => (default => LWP::UserAgent->new(timeout => 10, agent => 'Mozilla/5.0', max_size => 1024**2));
-has query => (is => 'ro', required => 1);
+has query => (is => 'ro', required => 1, coerce => sub { uri_escape_utf8($_[0]) });
 
-sub BUILD {
-	my $self = shift;
-	
-	$self->{links}      = [];
-	$self->{prev_links} = [];
-}
+has _links      => sub{[]};
+has _prev_links => sub{[]};
 
 sub next {
 	confess 'not implemented';
