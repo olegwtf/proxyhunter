@@ -4,12 +4,12 @@ use Mo qw'is build required';
 use Parse::JCONF;
 use Carp;
 
-has path                => (is => 'ro', required => 1);
-has db                  => (is => 'ro');
-has checker             => (is => 'ro');
-has rechecker           => (is => 'ro');
-has speed_checker       => (is => 'ro');
-has searcher            => (is => 'ro');
+has path          => (is => 'ro', required => 1);
+has db            => (is => 'ro');
+has checker       => (is => 'ro');
+has rechecker     => (is => 'ro');
+has speed_checker => (is => 'ro');
+has searcher      => (is => 'ro');
 
 sub BUILD {
 	my $self = shift;

@@ -77,6 +77,10 @@ sub start {
 	}
 	
 	if (defined $daemon) {
+		$SIG{INT} = $SIG{TERM} = sub {
+			unlink $daemon if length($daemon) > 0;
+		};
+		
 		eval {
 			require Proc::Daemon;
 		};
@@ -144,7 +148,7 @@ sub _start_checkers {
 				$proxy->conn_time($conn_time);
 				
 				if ($speed_checker) {
-					my $speed = $class->_check_speed($speed_checker, $config->speed_check->url, $proxy)
+					my $speed = $class->_check_speed($speed_checker, $config->speed_checker->url, $proxy)
 						or do {
 							$proxy->delete();
 							next;
@@ -286,12 +290,12 @@ sub _start_speed_checkers {
 				}
 				
 				my $proxy = shift @queue;
-				if (my $speed = $class->_check_speed($speed_checker, $config->speed_check->url, $proxy)) {
+				if (my $speed = $class->_check_speed($speed_checker, $config->speed_checker->url, $proxy)) {
 					$proxy->speed($speed);
 				}
 				else {
 					$proxy->fails($proxy->fails+1);
-					if ($proxy->fails > $config->recheck->fails_before_delete) {
+					if ($proxy->fails > $config->rechecker->fails_before_delete) {
 						$proxy->delete();
 						next;
 					}
@@ -390,7 +394,7 @@ sub _check {
 
 my %uri_scheme = (
 	&HTTP_PROXY   => 'http',
-	&HTTPS_PROXY  => 'connect'
+	&HTTPS_PROXY  => 'connect',
 	&SOCKS4_PROXY => 'socks4',
 	&SOCKS5_PROXY => 'socks',
 );
