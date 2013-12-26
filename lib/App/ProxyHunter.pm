@@ -163,7 +163,6 @@ sub _start_checkers {
 				}
 				
 				$proxy->checked(1);
-				$proxy->worked(1);
 				$proxy->checkdate(DateTime->now(time_zone => 'local'));
 				$proxy->in_progress(0);
 				$proxy->fails(0);
