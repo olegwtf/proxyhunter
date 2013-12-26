@@ -25,14 +25,14 @@ sub BUILD {
 	
 	close $fh;
 	
-	$self->{db}            = ProxyHunter::Config::DB->new( %{$jcfg->{db}} );
-	$self->{checker}       = ProxyHunter::Config::Checker->new( %{$jcfg->{check}} );
-	$self->{rechecker}     = ProxyHunter::Config::Rechecker->new( %{$jcfg->{recheck}} );
-	$self->{speed_checker} = ProxyHunter::Config::SpeedChecker->new( %{$jcfg->{speed_check}} );
-	$self->{searcher}      = ProxyHunter::Config::Searcher->new( %{$jcfg->{search}} );
+	$self->{db}            = App::ProxyHunter::Config::DB->new( %{$jcfg->{db}} );
+	$self->{checker}       = App::ProxyHunter::Config::Checker->new( %{$jcfg->{check}} );
+	$self->{rechecker}     = App::ProxyHunter::Config::Rechecker->new( %{$jcfg->{recheck}} );
+	$self->{speed_checker} = App::ProxyHunter::Config::SpeedChecker->new( %{$jcfg->{speed_check}} );
+	$self->{searcher}      = App::ProxyHunter::Config::Searcher->new( %{$jcfg->{search}} );
 }
 
-package ProxyHunter::Config::DB;
+package App::ProxyHunter::Config::DB;
 
 use Mo 'default';
 
@@ -43,23 +43,25 @@ has login      => (default => 'root');
 has password   => (default => '');
 has schema     => (default => 'proxymonitor');
 
-package ProxyHunter::Config::Checker;
+package App::ProxyHunter::Config::Checker;
 
 use Mo 'default';
 
+has enabled      => (default => 1);
 has speed_check  => (default => 1);
 has workers      => (default => 30);
 
-package ProxyHunter::Config::Rechecker;
+package App::ProxyHunter::Config::Rechecker;
 
 use Mo 'default';
 
+has enabled             => (default => 1);
 has speed_check         => (default => 0);
 has workers             => (default => 10);
 has interval            => (default => 300);
 has fails_before_delete => (default => 3);
 
-package ProxyHunter::Config::SpeedChecker;
+package App::ProxyHunter::Config::SpeedChecker;
 
 use Mo 'default';
 
@@ -68,11 +70,12 @@ has workers  => (default => 10);
 has interval => (default => 1800);
 has url      => (default => "http://mirror.yandex.ru/debian/ls-lR.gz");
 
-package ProxyHunter::Config::Searcher;
+package App::ProxyHunter::Config::Searcher;
 
 use Mo 'default';
 
-has querylist => (default => ['free proxy']);
+has enabled   => (default => 1);
+has querylist => (default => ['free proxy list']);
 has engines   => ['Google', 'Bing', 'Yandex'];
 
 1;

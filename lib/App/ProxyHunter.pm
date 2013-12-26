@@ -96,14 +96,18 @@ sub start {
 	$model->update('proxy', {in_progress => 0}); # clean
 	
 	my @coros;
-	push @coros, $class->_start_checkers($config, $model);
-	push @coros, $class->_start_recheckers($config, $model);
-	
+	if ($config->checker->enabled) {
+		push @coros, $class->_start_checkers($config, $model);
+	}
+	if ($config->rechecker->enabled) {
+		push @coros, $class->_start_recheckers($config, $model);
+	}
 	if ($config->speed_checker->enabled) {
 		push @coros, $class->_start_speed_checkers($config, $model);
 	}
-	
-	push @coros, $class->_start_searcher($config, $model);
+	if ($config->searcher->enabled) {
+		push @coros, $class->_start_searcher($config, $model);
+	}
 	
 	$_->join() for @coros;
 }
@@ -441,8 +445,8 @@ __DATA__
 db = {
 	driver: "mysql",
 	driver_cfg: {
-		"mysql_auto_reconnect": 1,
-		"mysql_enable_utf8": 1
+		mysql_auto_reconnect: 1,
+		mysql_enable_utf8: 1
 	},
 	host: "localhost",
 	schema: "proxyhunter"
@@ -452,6 +456,7 @@ db = {
 
 # first check
 check = {
+	enabled: true,
 	workers: 30,
 	speed_check: true # do immediate speed check
 	                  # if true will performe speed check
@@ -460,6 +465,7 @@ check = {
 
 # recheck for alive proxies
 recheck = {
+	enabled: true,
 	workers: 10,
 	interval: 300,
 	speed_check: false,
@@ -477,6 +483,7 @@ speed_check = {
 
 
 search = {
+	enabled: true,
 	# which queries to use when searching for proxylist
 	# via google and other search engines
 	querylist: [
