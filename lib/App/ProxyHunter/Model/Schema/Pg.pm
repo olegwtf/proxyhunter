@@ -1,18 +1,18 @@
-package App::ProxyHunter::Model::Schema::mysql;
+package App::ProxyHunter::Model::Schema::Pg;
 
 use strict;
 use Teng::Schema::Declare;
-use DateTime::Format::MySQL;
+use DateTime::Format::Pg;
 use App::ProxyHunter::Model::SchemaUtils qw'proxy_name_to_type proxy_type_to_name';
 
 sub perl_datetime_to_sql {
 	return unless defined $_[0];
-	DateTime::Format::MySQL->format_datetime($_[0]);
+	DateTime::Format::Pg->format_datetime($_[0]);
 }
 
 sub sql_datetime_to_perl {
-	return unless defined $_[0] && $_[0] ne '0000-00-00 00:00:00';
-	DateTime::Format::MySQL->parse_datetime($_[0])->set_time_zone('local');
+	return unless defined $_[0];
+	DateTime::Format::Pg->parse_datetime($_[0])->set_time_zone('local');
 }
 
 table {

@@ -152,7 +152,7 @@ sub _start_checkers {
 				$proxy->conn_time($conn_time);
 				
 				if ($speed_checker) {
-					my $speed = $class->_check_speed($speed_checker, $config->speed_checker->url, $proxy)
+					my $speed = $class->_check_speed($speed_checker, $config->speed_checker, $proxy)
 						or do {
 							$proxy->delete();
 							next;
@@ -220,7 +220,7 @@ sub _start_recheckers {
 					$proxy->conn_time($conn_time);
 					
 					if ($speed_checker) {
-						if (my $speed = $class->_check_speed($speed_checker, $config->speed_checker->url, $proxy)) {
+						if (my $speed = $class->_check_speed($speed_checker, $config->speed_checker, $proxy)) {
 							$proxy->speed($speed);
 						}
 						else {
@@ -293,7 +293,7 @@ sub _start_speed_checkers {
 				}
 				
 				my $proxy = shift @queue;
-				if (my $speed = $class->_check_speed($speed_checker, $config->speed_checker->url, $proxy)) {
+				if (my $speed = $class->_check_speed($speed_checker, $config->speed_checker, $proxy)) {
 					$proxy->speed($speed);
 				}
 				else {
@@ -374,14 +374,17 @@ sub _get_queue {
 sub _check {
 	my ($class, $checker, $proxy) = @_;
 	
+	my $full_mask = 0;
+	$full_mask |= $_ for grep { $_ != UNKNOWN_PROXY && $_ != DEAD_PROXY } keys %Net::Proxy::Type::NAME;
 	my @check_mask;
+	
 	if ($proxy->type) {
 		# first check for previous type of the proxy to speed up
 		push @check_mask, $proxy->type;
-		push @check_mask, (HTTP_PROXY|HTTPS_PROXY|SOCKS4_PROXY|SOCKS5_PROXY)&(~$proxy->type);
+		push @check_mask, $full_mask&(~$proxy->type);
 	}
 	else {
-		push @check_mask, HTTP_PROXY|HTTPS_PROXY|SOCKS4_PROXY|SOCKS5_PROXY;
+		push @check_mask, $full_mask;
 	}
 	
 	for my $mask (@check_mask) {
@@ -396,14 +399,15 @@ sub _check {
 }
 
 my %uri_scheme = (
-	&HTTP_PROXY   => 'http',
-	&HTTPS_PROXY  => 'connect',
-	&SOCKS4_PROXY => 'socks4',
-	&SOCKS5_PROXY => 'socks',
+	&HTTP_PROXY    => 'http',
+	&CONNECT_PROXY => 'connect',
+	&HTTPS_PROXY   => 'connect',
+	&SOCKS4_PROXY  => 'socks4',
+	&SOCKS5_PROXY  => 'socks',
 );
 
 sub _check_speed {
-	my ($class, $checker, $url, $proxy) = @_;
+	my ($class, $checker, $config, $proxy) = @_;
 	
 	$checker->proxy(['http', 'https'] => sprintf('%s://%s:%s', $uri_scheme{$proxy->type}, $proxy->host, $proxy->port));
 	
@@ -413,29 +417,32 @@ sub _check_speed {
 	my $maxbytes = 1024*1024;
 	my $start = Time::HiRes::time();
 	
-	my $resp = $checker->get($url, ':content_cb' => sub {
-		$received_bytes += length($_[0]);
-		$curspeed = $received_bytes / (Time::HiRes::time() - $start);
-		die if $received_bytes > $maxbytes;
-		
-		if (@speed_variations == 10) {
-			my $ok = 1;
-			for my $sv (@speed_variations) {
-				if (abs($sv - $curspeed) > 5 * 1024) {
-					$ok = 0;
-					last;
+	my $resp = $checker->get(
+		$proxy->type == HTTPS_PROXY ? $config->https_url : $config->http_url,
+		':content_cb' => sub {
+			$received_bytes += length($_[0]);
+			$curspeed = $received_bytes / (Time::HiRes::time() - $start);
+			die if $received_bytes > $maxbytes;
+			
+			if (@speed_variations == 10) {
+				my $ok = 1;
+				for my $sv (@speed_variations) {
+					if (abs($sv - $curspeed) > 5 * 1024) {
+						$ok = 0;
+						last;
+					}
 				}
+				
+				die if $ok;
+				shift @speed_variations;
 			}
 			
-			die if $ok;
-			shift @speed_variations;
+			push @speed_variations, $curspeed;
 		}
-		
-		push @speed_variations, $curspeed;
-	});
+	);
 	
 	return if $resp->code > 299;
-	return $curspeed;
+	return int($curspeed);
 }
 
 1;
@@ -477,7 +484,8 @@ speed_check = {
 	enabled: true,
 	workers: 10,
 	interval: 1800,
-	url: "http://mirror.yandex.ru/debian/ls-lR.gz" # should be > 1 mb
+	http_url: "http://mirror.yandex.ru/debian/ls-lR.gz" # should be > 1 mb
+	https_url: "https://mail.ru"
 }
 
 

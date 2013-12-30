@@ -65,10 +65,11 @@ package App::ProxyHunter::Config::SpeedChecker;
 
 use Mo 'default';
 
-has enabled  => (default => 1);
-has workers  => (default => 10);
-has interval => (default => 1800);
-has url      => (default => "http://mirror.yandex.ru/debian/ls-lR.gz");
+has enabled   => (default => 1);
+has workers   => (default => 10);
+has interval  => (default => 1800);
+has http_url  => (default => "http://mirror.yandex.ru/debian/ls-lR.gz");
+has https_url => (default => "https://mail.ru/");
 
 package App::ProxyHunter::Config::Searcher;
 
