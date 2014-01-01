@@ -452,14 +452,12 @@ sub _check_speed {
 
 __DATA__
 db = {
-	driver: "mysql",
-	driver_cfg: {
-		mysql_auto_reconnect: 1
-	},
+	driver: "SQLite",
+	driver_cfg: {},
 	host: "localhost",
-	schema: "proxyhunter"
-	login: "root",
-	password: "toor"
+	schema: "proxyhunter.db"
+	login: "",
+	password: ""
 }
 
 # first check
