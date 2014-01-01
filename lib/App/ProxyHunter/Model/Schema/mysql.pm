@@ -1,10 +1,11 @@
 package App::ProxyHunter::Model::Schema::mysql;
 
-use strict;
+use Mo;
 use Teng::Schema::Declare;
 use DateTime::Format::MySQL;
 use App::ProxyHunter::Constants;
 use App::ProxyHunter::Model::SchemaUtils qw'proxy_name_to_type proxy_type_to_name';
+extends 'App::ProxyHunter::Model::Schema';
 
 sub perl_datetime_to_sql {
 	return unless defined $_[0];
@@ -43,3 +44,22 @@ table {
 };
 
 1;
+
+__DATA__
+CREATE TABLE `proxy` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `host` varchar(15) NOT NULL,
+  `port` smallint(5) unsigned NOT NULL,
+  `checked` tinyint(1) NOT NULL DEFAULT '0',
+  `checkdate` datetime NOT NULL DEFAULT '1980-01-01 00:00:00',
+  `speed_checkdate` datetime NOT NULL DEFAULT '1980-01-01 00:00:00',
+  `fails` tinyint(1) NOT NULL DEFAULT '0',
+  `type` enum('HTTPS_PROXY','HTTP_PROXY','CONNECT_PROXY','SOCKS4_PROXY','SOCKS5_PROXY','DEAD_PROXY') NOT NULL DEFAULT 'DEAD_PROXY',
+  `in_progress` tinyint(1) NOT NULL DEFAULT '0',
+  `conn_time` smallint(5) unsigned DEFAULT NULL,
+  `speed` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `proxy` (`host`,`port`),
+  KEY `sort` (`checked`,`checkdate`),
+  KEY `type` (`type`)
+);

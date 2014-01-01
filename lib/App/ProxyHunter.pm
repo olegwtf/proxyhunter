@@ -28,20 +28,21 @@ sub start {
 	my $class = shift;
 	my $opts_ok = Getopt::Long::Parser->new->getoptionsfromarray(
 		\@_,
-		'make-config=s' => \my $make_config,
-		'config=s'      => \my $config,
-		'daemon:s'      => \my $daemon
+		'create-config=s' => \my $create_config,
+		'create-schema'   => \my $create_schema,
+		'config=s'        => \my $config,
+		'daemon:s'        => \my $daemon
 	);
 	
-	my $usage = "usage: $0 --make-config /path/to/config | --config /path/to/config [--daemon [/path/to/pidfile]]";
+	my $usage = "usage: $0 --create-config /path/to/config | --config /path/to/config --create-schema | --config /path/to/config [--daemon [/path/to/pidfile]]";
 	
 	unless ($opts_ok) {
 		croak $usage;
 	}
 	
-	if (defined $make_config) {
-		open my $fh, '>', $make_config
-			or croak "can't open `$make_config' for write: $!";
+	if (defined $create_config) {
+		open my $fh, '>', $create_config
+			or croak "can't open `$create_config' for write: $!";
 		
 		while (my $str = <DATA>) {
 			print $fh $str;
@@ -70,6 +71,13 @@ sub start {
 		],
 		schema_class => 'App::ProxyHunter::Model::Schema::' . $config->db->driver
 	);
+	
+	if (defined $create_schema) {
+		while (my $query = $model->schema_class->get_create_query()) {
+			$model->do($query);
+		}
+		return;
+	}
 	
 	for my $engine (@{$config->searcher->engines}) {
 		$engine = 'App::ProxyHunter::SearchEngine::'.$engine;
