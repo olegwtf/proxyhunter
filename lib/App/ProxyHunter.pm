@@ -173,7 +173,7 @@ sub _start_checkers {
 				
 				$proxy->checked(1);
 				$proxy->set('checkdate', DateTime->now(time_zone => TZ));
-				$proxy->in_progress(0);
+				$proxy->in_progress(\0); # force update
 				$proxy->fails(0);
 				$proxy->update();
 			}
@@ -256,7 +256,7 @@ sub _start_recheckers {
 				}
 				
 				$proxy->set('checkdate', DateTime->now(time_zone => TZ));
-				$proxy->in_progress(0);
+				$proxy->in_progress(\0); # force update
 				$proxy->update();
 			}
 		}
@@ -315,7 +315,7 @@ sub _start_speed_checkers {
 				}
 				
 				$proxy->set('speed_checkdate', DateTime->now(time_zone => TZ));
-				$proxy->in_progress(0);
+				$proxy->in_progress(\0); # force update
 				$proxy->update();
 			}
 		}
@@ -367,15 +367,9 @@ sub _get_queue {
 	$conditions->{in_progress} = 0;
 	$rules->{limit} = SELECT_LIMIT;
 	
-	my $rows = $model->search('proxy', $conditions, $rules);
-	my @rows;
-	
-	while (my $proxy = $rows->next) {
-		$proxy->in_progress(1);
-		$proxy->update();
-		
-		push @rows, $proxy;
-	}
+	my @rows = $model->search('proxy', $conditions, $rules);
+	my @ids = map { $_->id } @rows;
+	$model->update('proxy', {in_progress => 1}, {id => \@ids});
 	
 	return @rows;
 }
@@ -460,8 +454,7 @@ __DATA__
 db = {
 	driver: "mysql",
 	driver_cfg: {
-		mysql_auto_reconnect: 1,
-		mysql_enable_utf8: 1
+		mysql_auto_reconnect: 1
 	},
 	host: "localhost",
 	schema: "proxyhunter"
