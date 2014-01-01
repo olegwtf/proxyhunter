@@ -17,6 +17,7 @@ use Time::HiRes;
 use DateTime;
 use List::Util 'shuffle';
 use Getopt::Long;
+use App::ProxyHunter::Constants;
 use App::ProxyHunter::Config;
 use App::ProxyHunter::Model;
 
@@ -159,11 +160,11 @@ sub _start_checkers {
 						};
 					
 					$proxy->speed($speed);
-					$proxy->speed_checkdate(DateTime->now(time_zone => 'local'));
+					$proxy->speed_checkdate(DateTime->now(time_zone => TZ));
 				}
 				
 				$proxy->checked(1);
-				$proxy->checkdate(DateTime->now(time_zone => 'local'));
+				$proxy->checkdate(DateTime->now(time_zone => TZ));
 				$proxy->in_progress(0);
 				$proxy->fails(0);
 				$proxy->update();
@@ -202,7 +203,7 @@ sub _start_recheckers {
 						next;
 					}
 					
-					my $sec_after_last_check = DateTime->now(time_zone => 'local')->
+					my $sec_after_last_check = DateTime->now(time_zone => TZ)->
 							subtract_datetime_absolute($queue[0]->checkdate)->seconds;
 					
 					if ($sec_after_last_check < $config->rechecker->interval) {
@@ -228,7 +229,7 @@ sub _start_recheckers {
 							$proxy->speed(0);
 						}
 						
-						$proxy->speed_checkdate(DateTime->now(time_zone => 'local'));
+						$proxy->speed_checkdate(DateTime->now(time_zone => TZ));
 					}
 				}
 				else {
@@ -246,7 +247,7 @@ sub _start_recheckers {
 					$proxy->fails(0);
 				}
 				
-				$proxy->checkdate(DateTime->now(time_zone => 'local'));
+				$proxy->checkdate(DateTime->now(time_zone => TZ));
 				$proxy->in_progress(0);
 				$proxy->update();
 			}
@@ -281,7 +282,7 @@ sub _start_speed_checkers {
 						next;
 					}
 					
-					my $sec_after_last_check = DateTime->now(time_zone => 'local')->
+					my $sec_after_last_check = DateTime->now(time_zone => TZ)->
 							subtract_datetime_absolute($queue[0]->speed_checkdate)->seconds;
 					
 					if ($sec_after_last_check < $config->speed_checker->interval) {
@@ -305,7 +306,7 @@ sub _start_speed_checkers {
 					$proxy->speed(0);
 				}
 				
-				$proxy->speed_checkdate(DateTime->now(time_zone => 'local'));
+				$proxy->speed_checkdate(DateTime->now(time_zone => TZ));
 				$proxy->in_progress(0);
 				$proxy->update();
 			}

@@ -3,6 +3,7 @@ package App::ProxyHunter::Model::Schema::Pg;
 use strict;
 use Teng::Schema::Declare;
 use DateTime::Format::Pg;
+use App::ProxyHunter::Constants;
 use App::ProxyHunter::Model::SchemaUtils qw'proxy_name_to_type proxy_type_to_name';
 
 sub perl_datetime_to_sql {
@@ -12,7 +13,7 @@ sub perl_datetime_to_sql {
 
 sub sql_datetime_to_perl {
 	return unless defined $_[0];
-	DateTime::Format::Pg->parse_datetime($_[0])->set_time_zone('local');
+	DateTime::Format::Pg->parse_datetime($_[0])->set_time_zone(TZ);
 }
 
 table {
