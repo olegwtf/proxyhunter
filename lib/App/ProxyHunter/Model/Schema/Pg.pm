@@ -1,10 +1,11 @@
 package App::ProxyHunter::Model::Schema::Pg;
 
-use strict;
+use Mo;
 use Teng::Schema::Declare;
 use DateTime::Format::Pg;
 use App::ProxyHunter::Constants;
 use App::ProxyHunter::Model::SchemaUtils qw'proxy_name_to_type proxy_type_to_name';
+extends 'App::ProxyHunter::Model::Schema';
 
 sub perl_datetime_to_sql {
 	return unless defined $_[0];

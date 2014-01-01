@@ -168,11 +168,11 @@ sub _start_checkers {
 						};
 					
 					$proxy->speed($speed);
-					$proxy->speed_checkdate(DateTime->now(time_zone => TZ));
+					$proxy->set('speed_checkdate', DateTime->now(time_zone => TZ));
 				}
 				
 				$proxy->checked(1);
-				$proxy->checkdate(DateTime->now(time_zone => TZ));
+				$proxy->set('checkdate', DateTime->now(time_zone => TZ));
 				$proxy->in_progress(0);
 				$proxy->fails(0);
 				$proxy->update();
@@ -237,7 +237,7 @@ sub _start_recheckers {
 							$proxy->speed(0);
 						}
 						
-						$proxy->speed_checkdate(DateTime->now(time_zone => TZ));
+						$proxy->set('speed_checkdate', DateTime->now(time_zone => TZ));
 					}
 				}
 				else {
@@ -255,7 +255,7 @@ sub _start_recheckers {
 					$proxy->fails(0);
 				}
 				
-				$proxy->checkdate(DateTime->now(time_zone => TZ));
+				$proxy->set('checkdate', DateTime->now(time_zone => TZ));
 				$proxy->in_progress(0);
 				$proxy->update();
 			}
@@ -314,7 +314,7 @@ sub _start_speed_checkers {
 					$proxy->speed(0);
 				}
 				
-				$proxy->speed_checkdate(DateTime->now(time_zone => TZ));
+				$proxy->set('speed_checkdate', DateTime->now(time_zone => TZ));
 				$proxy->in_progress(0);
 				$proxy->update();
 			}
