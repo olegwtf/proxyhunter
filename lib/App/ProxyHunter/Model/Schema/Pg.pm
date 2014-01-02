@@ -25,6 +25,7 @@ table {
 		host
 		port
 		checked
+		insertdate
 		checkdate
 		speed_checkdate
 		fails
@@ -37,7 +38,7 @@ table {
 	inflate type => \&proxy_name_to_type;
 	deflate type => \&proxy_type_to_name;
 	
-	for (qw/checkdate speed_checkdate/) {
+	for (qw/insertdate checkdate speed_checkdate/) {
 		inflate $_ => \&sql_datetime_to_perl;
 		deflate $_ => \&perl_datetime_to_sql;
 	}
@@ -53,6 +54,7 @@ CREATE TABLE proxy
   host character varying(15) NOT NULL,
   port integer NOT NULL,
   checked boolean NOT NULL DEFAULT false,
+  insertdate timestamp without time zone NOT NULL,
   checkdate timestamp without time zone NOT NULL DEFAULT '1980-01-01 00:00:00'::timestamp without time zone,
   speed_checkdate timestamp without time zone NOT NULL DEFAULT '1980-01-01 00:00:00'::timestamp without time zone,
   fails smallint NOT NULL DEFAULT 0,

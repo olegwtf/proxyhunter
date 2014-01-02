@@ -25,6 +25,7 @@ table {
 		host
 		port
 		checked
+		insertdate
 		checkdate
 		speed_checkdate
 		fails
@@ -37,7 +38,7 @@ table {
 	inflate type => \&proxy_name_to_type;
 	deflate type => \&proxy_type_to_name;
 	
-	for (qw/checkdate speed_checkdate/) {
+	for (qw/insertdate checkdate speed_checkdate/) {
 		inflate $_ => \&sql_datetime_to_perl;
 		deflate $_ => \&perl_datetime_to_sql;
 	}
@@ -51,6 +52,7 @@ CREATE TABLE "proxy" (
     "host" TEXT NOT NULL,
     "port" INTEGER NOT NULL,
     "checked" INTEGER NOT NULL DEFAULT (0),
+    "insertdate" INTEGER NOT NULL,
     "checkdate" INTEGER NOT NULL DEFAULT (0),
     "speed_checkdate" INTEGER NOT NULL DEFAULT (0),
     "fails" INTEGER NOT NULL DEFAULT (0),

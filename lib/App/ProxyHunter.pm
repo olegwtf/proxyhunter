@@ -351,16 +351,21 @@ sub _start_searcher {
 						next;
 					}
 					
-					for my $proxy (@$proxylist) {
-						my ($host, $port) = split /:/, $proxy;
-						$host = Coro::Util::inet_aton($host) or next;
-						$host = join('.', unpack('C4', $host));
-						eval {
-							# ignore duplicates
-							$model->fast_insert('proxy', {
-								host => $host,
-								port => $port
-							});
+					if (@$proxylist) {
+						my $now = DateTime->now(time_zone => TZ);
+						
+						for my $proxy (@$proxylist) {
+							my ($host, $port) = split /:/, $proxy;
+							$host = Coro::Util::inet_aton($host) or next;
+							$host = join('.', unpack('C4', $host));
+							eval {
+								# ignore duplicates
+								$model->fast_insert('proxy', {
+									host       => $host,
+									port       => $port,
+									insertdate => $now
+								});
+							}
 						}
 					}
 				}
