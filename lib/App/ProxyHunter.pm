@@ -21,8 +21,9 @@ use App::ProxyHunter::Constants;
 use App::ProxyHunter::Config;
 use App::ProxyHunter::Model;
 
-use constant CORO_DELAY   => 5;
-use constant SELECT_LIMIT => 100;
+use constant CORO_DELAY       => 5;
+use constant SELECT_LIMIT     => 100;
+use constant MAX_SEC_IN_QUEUE => 60;
 
 sub start {
 	my $class = shift;
@@ -283,7 +284,12 @@ sub _start_speed_checkers {
 				}
 				
 				unless (@queue) {
-					unless (@queue = $class->_get_queue($model, {checked => 1}, {order_by => 'speed_checkdate'})) {
+					unless (@queue = $class->_get_queue(
+								$model,
+								{checked => 1},
+								{order_by => 'speed_checkdate'},
+								$config->speed_checker->interval)) {
+						
 						$delay = CORO_DELAY;
 						Coro::Timer::sleep $delay;
 						$delay = 0;
@@ -314,7 +320,9 @@ sub _start_speed_checkers {
 					$proxy->speed(0);
 				}
 				
-				$proxy->set('speed_checkdate', DateTime->now(time_zone => TZ));
+				my $now = DateTime->now(time_zone => TZ);
+				$proxy->set('checkdate', $now);
+				$proxy->set('speed_checkdate', $now);
 				$proxy->in_progress(\0); # force update
 				$proxy->update();
 			}
@@ -362,15 +370,30 @@ sub _start_searcher {
 }
 
 sub _get_queue {
-	my ($class, $model, $conditions, $rules) = @_;
+	my ($class, $model, $conditions, $rules, $interval) = @_;
 	
 	$conditions->{in_progress} = 0;
 	$rules->{limit} = SELECT_LIMIT;
 	
-	my @rows = $model->search('proxy', $conditions, $rules);
-	my @ids = map { $_->id } @rows;
-	$model->update('proxy', {in_progress => 1}, {id => \@ids});
+	my $iter = $model->search('proxy', $conditions, $rules);
+	my $now = DateTime->now(time_zone => TZ);
+	my $date_column = $rules->{order_by};
 	
+	my @rows;
+	my @ids;
+	
+	while (my $proxy = $iter->next) {
+		if (defined $interval && 
+			$interval - $now->subtract_datetime_absolute($proxy->$date_column)->seconds > MAX_SEC_IN_QUEUE) {
+			
+			next;
+		}
+		
+		push @rows, $proxy;
+		push @ids, $proxy->id;
+	}
+	
+	$model->update('proxy', {in_progress => 1}, {id => \@ids});
 	return @rows;
 }
 
