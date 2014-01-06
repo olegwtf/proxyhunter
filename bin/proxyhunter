@@ -1,0 +1,6 @@
+#!/usr/bin/perl
+
+use strict;
+use App::ProxyHunter;
+
+App::ProxyHunter->start(@ARGV);
