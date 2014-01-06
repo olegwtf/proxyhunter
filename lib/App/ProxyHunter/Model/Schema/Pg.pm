@@ -25,6 +25,8 @@ table {
 		host
 		port
 		checked
+		success_total
+		fails_total
 		insertdate
 		checkdate
 		speed_checkdate
@@ -54,6 +56,8 @@ CREATE TABLE proxy
   host character varying(15) NOT NULL,
   port integer NOT NULL,
   checked boolean NOT NULL DEFAULT false,
+  success_total integer NOT NULL DEFAULT 0,
+  fails_total integer NOT NULL DEFAULT 0,
   insertdate timestamp without time zone NOT NULL,
   checkdate timestamp without time zone NOT NULL DEFAULT '1980-01-01 00:00:00'::timestamp without time zone,
   speed_checkdate timestamp without time zone NOT NULL DEFAULT '1980-01-01 00:00:00'::timestamp without time zone,

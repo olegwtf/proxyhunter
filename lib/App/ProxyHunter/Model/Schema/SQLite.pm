@@ -25,6 +25,8 @@ table {
 		host
 		port
 		checked
+		success_total
+		fails_total
 		insertdate
 		checkdate
 		speed_checkdate
@@ -52,6 +54,8 @@ CREATE TABLE "proxy" (
     "host" TEXT NOT NULL,
     "port" INTEGER NOT NULL,
     "checked" INTEGER NOT NULL DEFAULT (0),
+    "success_total" INTEGER NOT NULL DEFAULT (0),
+    "fails_total" INTEGER NOT NULL DEFAULT (0),
     "insertdate" INTEGER NOT NULL,
     "checkdate" INTEGER NOT NULL DEFAULT (0),
     "speed_checkdate" INTEGER NOT NULL DEFAULT (0),
