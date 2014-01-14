@@ -4,3 +4,70 @@ use strict;
 use App::ProxyHunter;
 
 App::ProxyHunter->start(@ARGV);
+
+__END__
+
+=pod
+
+=head1 NAME
+
+proxyhunter - free proxy searcher and checker
+
+=head1 DESCRIPTION
+
+C<proxyhunter> may be used to find free proxies, it performs searching using one of the available search engine
+(like Google and so on). All found proxies may be checked for availability, proxy type and speed. C<proxyhunter>
+uses database as storage for found proxies, so you can easily perfrom any select statement to find what you need.
+
+=head1 QUICK START
+
+First of all you should install one of the available database schema. The easiest for deploy is SQLite (but not very fast)
+
+	$ cpan App::ProxyHunter::Model::Schema::SQLite
+
+Then you should generate configuration file and edit if needed
+
+	$ proxyhunter --create-config proxyhunter.jconf
+
+Now time to create database schema
+
+	$ proxyhunter --config proxyhunter.jconf --create-schema
+
+And finally you can start the process
+
+	$ proxyhunter --config proxyhunter.jconf
+
+=head1 AVAILABLE OPTIONS
+
+=head2 --create-config /path/to/config
+
+Generates default configuration file
+
+=head2 --create-schema
+
+Creates table structures inside database. This should be used with C<--config> option
+
+=head2 --config /path/to/config
+
+Which config file to use for creating schema or to run
+
+=head2 --daemon /path/to/pidfile
+
+Run proxyhunter as daemon. C</path/to/pidfile> may be omitted, otherwise pid of the daemon will be writed to this file.
+Proc::Daemon should be additionally installed for this to work.
+
+=head1 CONFIGURATION
+
+Use C<--create-config> option to create default configuration file.
+
+=head2 db
+
+=head2 check
+
+=head2 recheck
+
+=head2 speed_check
+
+=head2 search
+
+=cut
