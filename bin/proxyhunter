@@ -41,7 +41,7 @@ And finally you can start the process
 
 =head2 --create-config /path/to/config
 
-Generates default configuration file
+Generates default configuration file 
 
 =head2 --create-schema
 
@@ -58,9 +58,15 @@ Proc::Daemon should be additionally installed for this to work.
 
 =head1 CONFIGURATION
 
-Use C<--create-config> option to create default configuration file.
+Use C<--create-config> option to create default configuration file. Configuration file format is JCONF (see L<Parse::JCONF>).
 
 =head2 db
+
+Database settings. Available options listed below
+
+=head3 driver
+
+DBI driver to use. You should have schema installed for this driver in App::ProxyHunter::Model::Schema namespace.
 
 =head2 check
 
