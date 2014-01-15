@@ -17,7 +17,7 @@ proxyhunter - free proxy searcher and checker
 
 C<proxyhunter> may be used to find free proxies, it performs searching using one of the available search engine
 (like Google and so on). All found proxies may be checked for availability, proxy type and speed. C<proxyhunter>
-uses database as storage for found proxies, so you can easily perfrom any select statement to find what you need.
+uses database as storage for found proxies, so you can easily perfrom any SELECT statement to find what you need.
 
 =head1 QUICK START
 
@@ -66,7 +66,9 @@ Database settings. Available options listed below
 
 =head3 driver
 
-DBI driver to use. You should have schema installed for this driver in App::ProxyHunter::Model::Schema namespace.
+DBI driver to use. You should have schema installed for this driver, which implemented as C<App::ProxyHunter::Model::Schema> subclass.
+See CPAN for available implementations. You can implement schema yourself for your preferred database,
+see L<App::ProxyHunter::Model::Schema>.
 
 =head3 driver_cfg
 
@@ -88,26 +90,156 @@ Login for database, if needed
 
 Password for database, if needed
 
-=head2 check
+=head2 search
 
-Checker settings. Checking performed right after proxy was inserted into database. Available options listed below
+Proxy sercher settings. Searcher uses specified search engines to find out proxies. You can implement new search engine,
+see L<App::ProxyHunter::SearchEngine>. See CPAN for available implementations.
 
 =head3 enabled
 
-C<true> to enable proxy checking for availability and type, C<false> to disable
+C<true> to enable proxy searching , C<false> to disable
+
+=head3 querylist
+
+A list of queries which will be passed to search engine (like "free proxy", "proxy list", ...)
+
+=head3 engines
+
+Which search engines to use. Search engine implementation should be in C<App::ProxyHunter::SearchEngine> namespace.
+
+=head2 check
+
+Checker settings. Checker checks proxy for availability and type. Checking performed right after proxy was
+inserted into database. If proxy will not pass check (e.g. bad proxy) it will be deleted. Available options listed below
+
+=head3 enabled
+
+C<true> to enable proxy checking , C<false> to disable
 
 =head3 workers
 
-How many workers should perform checking in parallel. Bigger value causes higher check speed and higher resource usage
+How many workers should perform checking in parallel. Bigger value causes higher check speed and higher resources usage
 
-=speed_check
+=head3 speed_check
 
-Should checker perform speed checking right after successfull cjecking for availability. If C<true> will perform checking even if speed checking disabled in speed_check section
+Should checker perform speed checking right after successful checking for availability.
+If C<true> will perform checking even if speed checking disabled in C<speed_check> section
 
 =head2 recheck
 
+Rechecker settings. Rechecker checks proxy for availability and type, only proxies which passed first check by checker.
+Rechecker used to check proxies that passed at least one check and was not deleted from database yet
+(C<fails_before_delete> limit not exceeded). Available options listed below
+
+=head3 enabled
+
+Enable or disable rechecking
+
+=head3 workers
+
+How many workers to use for rechecking
+
+=head3 interval
+
+How often proxy may be rechecked. For example C<180> means not more than each 180 seconds
+
+=head3 speed_check
+
+Perform speed check right after recheck
+
+=head3 fails_before_delete
+
+How much in a row proxy check may failed before it will be deleted from database. For example C<3> means
+that proxy will be deleted on fourth check fail
+
 =head2 speed_check
 
-=head2 search
+Speed checker settings. Each proxy which passed initial check by checker may be checked for speed. Available
+options listed below
+
+=head3 enabled
+
+Enable or disable speed checking
+
+=head3 workers
+
+How many workers to use for speed checking
+
+=head3 interval
+
+How often to recheck proxy speed
+
+=head3 http_url
+
+HTTP url to some file which will be downloaded to check proxy speed. For measurment accuracy file should be at least
+1 mb. Not whole file will be downloaded, but only part needed for measurment accuracy, so file may be much bigger. HTTP url
+used for those proxies that may be used for HTTP protocol
+
+=head3 https_url
+
+HTTPS url to some file which will be downloaded to check proxy speed. For measurment accuracy file should be at least
+1 mb. Not whole file will be downloaded, but only part needed for measurment accuracy, so file may be much bigger. HTTPS url
+used for those proxies that may be used for HTTPS protocol
+
+=head1 DATABASE STRUCTURE
+
+Database has one table called C<proxy>. This table has columns listed below
+
+=head2 id
+
+Primary id
+
+=head2 host
+
+Proxy host as ipv4 address
+
+=head2 port
+
+Proxy port
+
+=head2 checked
+
+Is proxy checked at least one time after inserting in the database
+
+=head2 success_total
+
+How many times proxy check successfully passed
+
+=head2 fails_total
+
+How many times proxy check failed
+
+=head2 insertdate
+
+Date and time when this proxy was inserted in the database
+
+=head2 checkdate
+
+Date and time when last check was performed
+
+=head2 speed_checkdate
+
+Date and time when last speed check was performed
+
+=head2 fails
+
+How much failed checks in a row was performed. Each successful check resets this counter
+
+=head2 type
+
+Type of the proxy. One of C<HTTPS_PROXY>, C<HTTP_PROXY>, C<CONNECT_PROXY>, C<SOCKS4_PROXY>, C<SOCKS5_PROXY>, C<DEAD_PROXY>.
+Not checked proxy has C<DEAD_PROXY> type. See L<Net::Proxy::Type> for proxy types description.
+
+=head2 in_progress
+
+Is proxy in the queue for check
+
+=head2 conn_time
+
+Connection time to this proxy host
+
+=head2 speed
+
+Proxy speed in bytes per second
 
 =cut
