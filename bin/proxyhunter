@@ -68,7 +68,41 @@ Database settings. Available options listed below
 
 DBI driver to use. You should have schema installed for this driver in App::ProxyHunter::Model::Schema namespace.
 
+=head3 driver_cfg
+
+DBD driver specific options, like C<mysql_auto_reconnect> and so on
+
+=head3 host
+
+Host of the database, if needed
+
+=head3 schema
+
+Database name
+
+=head3 login
+
+Login for database, if needed
+
+=head3 password
+
+Password for database, if needed
+
 =head2 check
+
+Checker settings. Checking performed right after proxy was inserted into database. Available options listed below
+
+=head3 enabled
+
+C<true> to enable proxy checking for availability and type, C<false> to disable
+
+=head3 workers
+
+How many workers should perform checking in parallel. Bigger value causes higher check speed and higher resource usage
+
+=speed_check
+
+Should checker perform speed checking right after successfull cjecking for availability. If C<true> will perform checking even if speed checking disabled in speed_check section
 
 =head2 recheck
 
