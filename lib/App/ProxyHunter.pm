@@ -61,7 +61,7 @@ sub start {
 	
 	my $model = App::ProxyHunter::Model->new(
 		connect_info => [
-			sprintf('dbi:%s:database=%s', $config->db->driver, $config->db->schema) .
+			sprintf('dbi:%s:database=%s', $config->db->driver, $config->db->name) .
 				($config->db->host ? ';host='.$config->db->host : ''),
 			$config->db->login,
 			$config->db->password,
@@ -487,7 +487,7 @@ db = {
 	driver: "SQLite",
 	driver_cfg: {},
 	host: "localhost",
-	schema: "proxyhunter.db"
+	name: "proxyhunter.db"
 	login: "",
 	password: ""
 }

@@ -78,7 +78,7 @@ DBD driver specific options, like C<mysql_auto_reconnect> and so on
 
 Host of the database, if needed
 
-=head3 schema
+=head3 name
 
 Database name
 

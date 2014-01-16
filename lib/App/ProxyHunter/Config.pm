@@ -39,9 +39,9 @@ use Mo 'default';
 has driver     => (default => 'SQLite');
 has driver_cfg => (default => {});
 has host       => (default => 'localhost');
-has login      => (default => 'root');
+has login      => (default => '');
 has password   => (default => '');
-has schema     => (default => 'proxymonitor');
+has name       => (default => 'proxyhunter');
 
 package App::ProxyHunter::Config::Checker;
 
