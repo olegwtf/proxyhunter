@@ -402,7 +402,10 @@ sub _get_queue {
 		push @ids, $proxy->id;
 	}
 	
-	$model->update('proxy', {in_progress => 1}, {id => \@ids});
+	if (@ids) {
+		$model->update('proxy', {in_progress => 1}, {id => \@ids});
+	}
+	
 	return @rows;
 }
 
