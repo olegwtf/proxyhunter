@@ -10,9 +10,6 @@ $URI::Escape::escapes{' '} = '+';
 has ua    => (default => LWP::UserAgent->new(timeout => 10, agent => 'Mozilla/5.0', max_size => 1024**2));
 has query => (is => 'ro', required => 1, coerce => sub { uri_escape_utf8($_[0]) });
 
-has _links      => sub{[]};
-has _prev_links => sub{[]};
-
 sub next {
 	confess 'not implemented';
 }
