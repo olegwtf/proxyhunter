@@ -158,8 +158,8 @@ sub _start_checkers {
 						next;
 					};
 				
-				$proxy->set('type', $type); # deflate
-				$proxy->conn_time($conn_time);
+				$proxy->set('type', $type);
+				$proxy->set('conn_time', $conn_time);
 				
 				if ($speed_checker) {
 					my $speed = $class->_check_speed($speed_checker, $config->speed_checker, $proxy)
@@ -168,14 +168,14 @@ sub _start_checkers {
 							next;
 						};
 					
-					$proxy->speed($speed);
+					$proxy->set('speed', $speed);
 					$proxy->set('speed_checkdate', DateTime->now(time_zone => TZ));
 				}
 				
-				$proxy->checked(1);
+				$proxy->set('checked', 1);
 				$proxy->set('checkdate', DateTime->now(time_zone => TZ));
-				$proxy->in_progress(\0); # force update
-				$proxy->success_total(1);
+				$proxy->set('in_progress', \0); # force update
+				$proxy->set('success_total', 1);
 				$proxy->update();
 			}
 		}
@@ -227,15 +227,15 @@ sub _start_recheckers {
 				my $fail;
 				if (my ($type, $conn_time) = $class->_check($type_checker, $proxy)) {
 					$proxy->set('type', $type);
-					$proxy->conn_time($conn_time);
+					$proxy->set('conn_time', $conn_time);
 					
 					if ($speed_checker) {
 						if (my $speed = $class->_check_speed($speed_checker, $config->speed_checker, $proxy)) {
-							$proxy->speed($speed);
+							$proxy->set('speed', $speed);
 						}
 						else {
 							$fail = 1;
-							$proxy->speed(0);
+							$proxy->set('speed', 0);
 						}
 						
 						$proxy->set('speed_checkdate', DateTime->now(time_zone => TZ));
@@ -246,20 +246,20 @@ sub _start_recheckers {
 				}
 				
 				if ($fail) {
-					$proxy->fails_total($proxy->fails_total+1);
-					$proxy->fails($proxy->fails+1);
+					$proxy->set('fails_total', $proxy->fails_total+1);
+					$proxy->set('fails', $proxy->fails+1);
 					if ($proxy->fails > $config->rechecker->fails_before_delete) {
 						$proxy->delete();
 						next;
 					}
 				}
 				else {
-					$proxy->fails(0);
-					$proxy->success_total($proxy->success_total+1);
+					$proxy->set('fails', 0);
+					$proxy->set('success_total', $proxy->success_total+1);
 				}
 				
 				$proxy->set('checkdate', DateTime->now(time_zone => TZ));
-				$proxy->in_progress(\0); # force update
+				$proxy->set('in_progress', \0); # force update
 				$proxy->update();
 			}
 		}
@@ -311,23 +311,23 @@ sub _start_speed_checkers {
 				
 				my $proxy = shift @queue;
 				if (my $speed = $class->_check_speed($speed_checker, $config->speed_checker, $proxy)) {
-					$proxy->speed($speed);
-					$proxy->success_total($proxy->success_total+1);
+					$proxy->set('speed', $speed);
+					$proxy->set('success_total', $proxy->success_total+1);
 				}
 				else {
-					$proxy->fails($proxy->fails+1);
+					$proxy->set('fails', $proxy->fails+1);
 					if ($proxy->fails > $config->rechecker->fails_before_delete) {
 						$proxy->delete();
 						next;
 					}
-					$proxy->speed(0);
-					$proxy->fails_total($proxy->fails_total+1);
+					$proxy->set('speed', 0);
+					$proxy->set('fails_total', $proxy->fails_total+1);
 				}
 				
 				my $now = DateTime->now(time_zone => TZ);
 				$proxy->set('checkdate', $now);
 				$proxy->set('speed_checkdate', $now);
-				$proxy->in_progress(\0); # force update
+				$proxy->set('in_progress', \0); # force update
 				$proxy->update();
 			}
 		}
