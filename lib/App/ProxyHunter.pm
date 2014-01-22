@@ -133,7 +133,7 @@ sub _start_checkers {
 		push @coros, async {
 			my $type_checker = Net::Proxy::Type->new(http_strict => 1, noauth => 1);
 			my $speed_checker = $config->checker->speed_check ?
-				LWP::UserAgent->new(agent => 'Mozilla 5.0', timeout => 10) :
+				LWP::UserAgent->new(agent => 'Mozilla 5.0', timeout => 10, parse_head => 0) :
 				undef;
 			
 			while (1) {
@@ -195,7 +195,7 @@ sub _start_recheckers {
 		push @coros, async {
 			my $type_checker = Net::Proxy::Type->new(http_strict => 1, noauth => 1);
 			my $speed_checker = $config->rechecker->speed_check ?
-				LWP::UserAgent->new(agent => 'Mozilla 5.0', timeout => 10) :
+				LWP::UserAgent->new(agent => 'Mozilla 5.0', timeout => 10, parse_head => 0) :
 				undef;
 			
 			while (1) {
@@ -277,7 +277,7 @@ sub _start_speed_checkers {
 	
 	for (1..$config->speed_checker->workers) {
 		push @coros, async {
-			my $speed_checker = LWP::UserAgent->new(agent => 'Mozilla 5.0', timeout => 10);
+			my $speed_checker = LWP::UserAgent->new(agent => 'Mozilla 5.0', timeout => 10, parse_head => 0);
 			
 			while (1) {
 				if ($delay) {
