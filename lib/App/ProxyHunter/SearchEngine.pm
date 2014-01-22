@@ -19,10 +19,12 @@ sub _get_proxylist {
 	
 	my $page = $self->ua->get($url)->decoded_content;
 	$page =~ s/<[^>]+>/ /g;
+	
 	my @res;
-	while ($page =~ /(?:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|[a-z0-9.-]+?\.[a-z]{2,10}))(?:\s*:\s*|\s+)(\d{2,5})/gi) {
+	while ($page =~ /(?:(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\s[a-z0-9.-]{3,100}?\.[a-z]{2,10}))(?:\s*:\s*|\s+)(\d{2,5})/gi) {
 		push @res, "$1:$2";
 	}
+	
 	return \@res;
 }
 
