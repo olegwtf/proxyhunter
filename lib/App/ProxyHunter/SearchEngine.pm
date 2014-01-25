@@ -61,8 +61,8 @@ yahoo.com or for some specific site with proxy list.
 
 =head3 $self->next()
 
-This method should be implemented in subclass and return reference to array with portion of proxies in C<host:port> format.
-Or undef if there is no more proxies.
+This method should be implemented in subclass and return reference to array with portion of proxies in C<host:port> format
+or undef if there is no more proxies.
 
 =head2 $self->_get_proxylist($url)
 
@@ -74,11 +74,11 @@ some tricky web sites.
 
 =head3 $self->ua
 
-This attribute constains LWP::UserAgent instance which may be used for http requests
+This attribute contains LWP::UserAgent instance which may be used for http requests
 
 =head3 $self->query
 
-This attribute constains urlencoded query which should be used in subclass to search for proxy list. You can ignore it if this is
+This attribute contains urlencoded query which should be used in subclass to search for proxy list. You can ignore it if this is
 adapter for some specific site with proxy list where you don't need query.
 
 =cut

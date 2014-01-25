@@ -29,7 +29,7 @@ Then you should generate configuration file and edit if needed
 
 	$ proxyhunter --create-config proxyhunter.jconf
 
-Now time to create database schema
+Now it is time to create database schema
 
 	$ proxyhunter --config proxyhunter.jconf --create-schema
 
@@ -67,8 +67,7 @@ Database settings. Available options listed below
 =head3 driver
 
 DBI driver to use. You should have schema installed for this driver, which implemented as C<App::ProxyHunter::Model::Schema> subclass.
-See CPAN for available implementations. You can implement schema yourself for your preferred database,
-see L<App::ProxyHunter::Model::Schema>.
+See CPAN for available implementations. You can implement schema for preferred database yourself, see L<App::ProxyHunter::Model::Schema>.
 
 =head3 driver_cfg
 
@@ -141,7 +140,7 @@ How many workers to use for rechecking
 
 =head3 interval
 
-How often proxy may be rechecked. For example C<180> means not more than each 180 seconds
+How often proxy may be rechecked. For example C<180> means no more than each 180 seconds
 
 =head3 speed_check
 
@@ -154,7 +153,7 @@ that proxy will be deleted on fourth check fail
 
 =head2 speed_check
 
-Speed checker settings. Each proxy which passed initial check by checker may be checked for speed. Available
+Speed checker settings. Each proxy which passed initial check by checker may be checked for a speed. Available
 options listed below
 
 =head3 enabled
@@ -241,5 +240,14 @@ Connection time to this proxy host
 =head2 speed
 
 Proxy speed in bytes per second
+
+=head1 AUTHOR
+
+Oleg G, E<lt>oleg@cpan.orgE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself
 
 =cut

@@ -3,7 +3,7 @@ use strict;
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
-	NAME              => 'App::ProxyHunter',
+	NAME              => 'proxyhunter',
 	LICENSE           => 'perl',
 	VERSION_FROM      => 'lib/App/ProxyHunter.pm',
 	PREREQ_PM         => { 

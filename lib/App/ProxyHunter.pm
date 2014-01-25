@@ -37,7 +37,7 @@ sub start {
 		'daemon:s'        => \my $daemon
 	);
 	
-	my $usage = "usage: $0 --create-config /path/to/config | --config /path/to/config --create-schema | --config /path/to/config [--daemon [/path/to/pidfile]]";
+	my $usage = "usage: $0 --create-config /path/to/config | --config /path/to/config --create-schema | --config /path/to/config [--daemon [/path/to/pidfile]]\n";
 	
 	unless ($opts_ok) {
 		croak $usage;
@@ -101,6 +101,7 @@ sub start {
 		}
 		
 		Proc::Daemon::Init({
+			work_dir => '.',
 			length($daemon)>0 ? (pid_file => $daemon) : ()
 		});
 	}
@@ -497,11 +498,20 @@ App::ProxyHunter - main proxyhunter's class
 
 =head2 App::ProxyHunter->start(@ARGV)
 
-Static method to start C<proxyhunter> execution. @ARGV is array with options which C<proxyhunter> understands.
+Static method to start C<proxyhunter> execution. @ARGV is a list with options which C<proxyhunter> understands.
 
-=head SEE ALSO
+=head1 SEE ALSO
 
 L<proxyhunter>
+
+=head1 AUTHOR
+
+Oleg G, E<lt>oleg@cpan.orgE<gt>
+
+=head1 COPYRIGHT AND LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself
 
 =cut
 

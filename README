@@ -1,0 +1,24 @@
+proxyhunter
+===========
+
+proxyhunter may be used to find free proxies, it performs searching using available adapters for search engines
+(like Google and so on). All found proxies may be checked for availability, proxy type and speed. proxyhunter
+uses database as storage for found proxies, so you can easily perfrom any SELECT statement to find what you need.
+
+QUICK START
+
+First of all you should install one of the available database schema. The easiest for deploy is SQLite (but not very fast)
+
+	$ cpan App::ProxyHunter::Model::Schema::SQLite
+
+Then you should generate configuration file and edit if needed
+
+	$ proxyhunter --create-config proxyhunter.jconf
+
+Now it is time to create database schema
+
+	$ proxyhunter --config proxyhunter.jconf --create-schema
+
+And finally you can start the process
+
+	$ proxyhunter --config proxyhunter.jconf
