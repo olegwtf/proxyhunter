@@ -7,7 +7,8 @@ uses database as storage for found proxies, so you can easily perfrom any SELECT
 
 QUICK START
 
-First of all you should install one of the available database schema. The easiest for deploy is SQLite (but not very fast)
+First of all you should install one of the available database schema.
+The easiest for deploy is SQLite (but not very fast). See CPAN for other alternatives.
 
 	$ cpan App::ProxyHunter::Model::Schema::SQLite
 
@@ -22,3 +23,7 @@ Now it is time to create database schema
 And finally you can start the process
 
 	$ proxyhunter --config proxyhunter.jconf
+
+INSTALLATION
+
+	cpan proxyhunter

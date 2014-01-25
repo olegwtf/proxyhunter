@@ -40,7 +40,7 @@ sub start {
 	my $usage = "usage: $0 --create-config /path/to/config | --config /path/to/config --create-schema | --config /path/to/config [--daemon [/path/to/pidfile]]\n";
 	
 	unless ($opts_ok) {
-		croak $usage;
+		die $usage;
 	}
 	
 	if (defined $create_config) {
@@ -56,7 +56,7 @@ sub start {
 	}
 	
 	unless (defined $config) {
-		croak $usage;
+		die $usage;
 	}
 	
 	$config = App::ProxyHunter::Config->new(path => $config);
@@ -91,6 +91,7 @@ sub start {
 	if (defined $daemon) {
 		$SIG{INT} = $SIG{TERM} = sub {
 			unlink $daemon if length($daemon) > 0;
+			exit;
 		};
 		
 		eval {

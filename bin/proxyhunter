@@ -21,7 +21,8 @@ uses database as storage for found proxies, so you can easily perfrom any SELECT
 
 =head1 QUICK START
 
-First of all you should install one of the available database schema. The easiest for deploy is SQLite (but not very fast)
+First of all you should install one of the available database schema. The easiest for deploy is SQLite (but not very fast).
+See CPAN for other alternatives.
 
 	$ cpan App::ProxyHunter::Model::Schema::SQLite
 
