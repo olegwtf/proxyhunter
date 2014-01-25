@@ -14,16 +14,16 @@ has searcher      => (is => 'ro');
 sub BUILD {
 	my $self = shift;
 	
-	open my $fh, $self->path
-		or croak sprintf("Can't open `%s': %s", $self->path, $!);
-	
-	my $jcfg = do {
-		local $/;
-		my $raw_cfg = <$fh>;
-		Parse::JCONF->new(autodie => 1)->parse($raw_cfg);
+	my $jcfg;
+	eval {
+		$jcfg = Parse::JCONF->new(autodie => 1)->parse_file($self->path);
 	};
-	
-	close $fh;
+	if ($@) {
+		if ($@->isa('Parse::JCONF::Error::Parser')) {
+			die $self->path, ': ', $@;
+		}
+		die $@;
+	}
 	
 	$self->{db}            = App::ProxyHunter::Config::DB->new( %{$jcfg->{db}} );
 	$self->{checker}       = App::ProxyHunter::Config::Checker->new( %{$jcfg->{check}} );

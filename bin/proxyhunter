@@ -15,7 +15,7 @@ proxyhunter - free proxy searcher and checker
 
 =head1 DESCRIPTION
 
-C<proxyhunter> may be used to find free proxies, it performs searching using one of the available search engine
+C<proxyhunter> may be used to find free proxies, it performs searching using available adapters for search engines
 (like Google and so on). All found proxies may be checked for availability, proxy type and speed. C<proxyhunter>
 uses database as storage for found proxies, so you can easily perfrom any SELECT statement to find what you need.
 

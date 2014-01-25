@@ -25,6 +25,8 @@ use constant CORO_DELAY       => 5;
 use constant SELECT_LIMIT     => 100;
 use constant MAX_SEC_IN_QUEUE => 60;
 
+our $VERSION = '0.01';
+
 sub start {
 	my $class = shift;
 	my $opts_ok = Getopt::Long::Parser->new->getoptionsfromarray(
@@ -484,6 +486,24 @@ sub _check_speed {
 }
 
 1;
+
+=pod
+
+=head1 NAME
+
+App::ProxyHunter - main proxyhunter's class
+
+=head1 METHODS
+
+=head2 App::ProxyHunter->start(@ARGV)
+
+Static method to start C<proxyhunter> execution. @ARGV is array with options which C<proxyhunter> understands.
+
+=head SEE ALSO
+
+L<proxyhunter>
+
+=cut
 
 __DATA__
 db = {

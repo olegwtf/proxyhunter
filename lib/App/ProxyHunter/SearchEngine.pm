@@ -29,3 +29,56 @@ sub _get_proxylist {
 }
 
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+App::ProxyHunter::SearchEngine - base class for proxyhunter's search engine
+
+=head1 SYNOPSIS
+
+	package App::ProxyHunter::SearchEngine::MyEngine;
+	
+	use Mo;
+	extends 'App::ProxyHunter::SearchEngine';
+	
+	sub next {
+		my $self = shift;
+		...
+		return unless $has_more;
+		return $self->_get_proxylist($url);
+	}
+
+=head1 SUBCLASSING
+
+You should inherit this class to implement specific search engine. This subclass may be adapter for some search engine like
+yahoo.com or for some specific site with proxy list.
+
+=head2 METHODS
+
+=head3 $self->next()
+
+This method should be implemented in subclass and return reference to array with portion of proxies in C<host:port> format.
+Or undef if there is no more proxies.
+
+=head2 $self->_get_proxylist($url)
+
+This method implemented in base class and may be used in subclass to extract proxy list from specified $url. It returns
+reference to array with found proxies. It uses some simple regular expression for search and may not find any proxy for
+some tricky web sites.
+
+=head2 ATTRIBUTES
+
+=head3 $self->ua
+
+This attribute constains LWP::UserAgent instance which may be used for http requests
+
+=head3 $self->query
+
+This attribute constains urlencoded query which should be used in subclass to search for proxy list. You can ignore it if this is
+adapter for some specific site with proxy list where you don't need query.
+
+=cut
