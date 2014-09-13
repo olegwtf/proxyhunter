@@ -37,7 +37,10 @@ sub start {
 		'daemon:s'        => \my $daemon
 	);
 	
-	my $usage = "usage: $0 --create-config /path/to/config | --config /path/to/config --create-schema | --config /path/to/config [--daemon [/path/to/pidfile]]\n";
+	my $usage = "usage:
+	$0 --create-config /path/to/config
+	$0 --config /path/to/config --create-schema
+	$0 --config /path/to/config [--daemon [/path/to/pidfile]]\n";
 	
 	unless ($opts_ok) {
 		die $usage;
