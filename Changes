@@ -1,2 +1,6 @@
+0.02  Sat Sep 13 16:09:39 NOVT 2014
+        - more correct dependencies specification
+        - actualize Bing.pm for new html markup
+
 0.01  Sat Jan 25 21:51:25 NOVT 2014
         - first CPAN release
