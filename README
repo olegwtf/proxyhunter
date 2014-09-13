@@ -26,4 +26,4 @@ And finally you can start the process
 
 INSTALLATION
 
-	cpan proxyhunter
+	cpan App::ProxyHunter
