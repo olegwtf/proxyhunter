@@ -18,7 +18,7 @@ sub next {
 		$self->{offset} += defined($self->{offset}) ? 10 : 1;
 		
 		my $page = $self->ua->get('http://www.bing.com/search?q='.$self->query.'&first='.$self->{offset})->decoded_content;
-		@{$self->{links}} = $page =~ /<h3>\s*<a\s+href=["']([^'"]+)/gi
+		@{$self->{links}} = $page =~ /<h2>\s*<a\s+href=["']([^'"]+)/gi
 			or return;
 		
 		if(uniq(@{$self->{links}}, @{$self->{prev_links}}) == @{$self->{prev_links}}) {

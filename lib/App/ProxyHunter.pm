@@ -25,7 +25,7 @@ use constant CORO_DELAY       => 5;
 use constant SELECT_LIMIT     => 100;
 use constant MAX_SEC_IN_QUEUE => 60;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 sub start {
 	my $class = shift;
