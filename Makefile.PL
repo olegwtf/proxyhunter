@@ -8,7 +8,7 @@ WriteMakefile(
 	VERSION_FROM      => 'lib/App/ProxyHunter.pm',
 	PREREQ_PM         => { 
 		Coro::                   => 2.5,
-		Coro::PatchSet::         => 0.07,
+		Coro::PatchSet::         => 0.11,
 		LWP::UserAgent::         => 6.02,
 		LWP::Protocol::https::   => 6.02,
 		LWP::Protocol::connect:: => 6.09,

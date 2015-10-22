@@ -2,10 +2,10 @@ package App::ProxyHunter;
 
 use strict;
 use Coro::Select;
+use Coro::PatchSet;
 use Coro::LWP;
 use Coro::Timer;
 use Coro::Util;
-use Coro::PatchSet;
 use Coro;
 use LWP::UserAgent;
 use LWP::Protocol::https;
