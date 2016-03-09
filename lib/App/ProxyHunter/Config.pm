@@ -55,6 +55,7 @@ has http_url      => (default => $Net::Proxy::Type::URL);
 has http_keyword  => (default => $Net::Proxy::Type::KEYWORD);
 has https_url     => (default => $Net::Proxy::Type::HTTPS_URL);
 has https_keyword => (default => $Net::Proxy::Type::HTTPS_KEYWORD);
+has strict        => (default => 0);
 has types         => (default => [ grep { $_ ne 'DEAD_PROXY' && $_ ne 'UNKNOWN_PROXY' }
                                             values %Net::Proxy::Type::NAME ]
                     );
@@ -64,6 +65,7 @@ package App::ProxyHunter::Config::Rechecker;
 use Mo 'default';
 
 has enabled             => (default => 1);
+has strict              => (default => 0);
 has speed_check         => (default => 0);
 has workers             => (default => 10);
 has interval            => (default => 300);

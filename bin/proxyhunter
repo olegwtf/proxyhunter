@@ -116,6 +116,11 @@ inserted into database. If proxy will not pass check (e.g. bad proxy) it will be
 
 C<true> to enable proxy checking , C<false> to disable
 
+=head3 strict
+
+C<true> to enable strict checking. Default is C<false> except http proxy checking (which always will be C<true> regardless this option).
+For strict checking description see L<Net::Proxy::Type/"STRICT CHECKING">.
+
 =head3 types
 
 Will check proxy only for specified types if presented. For available proxy types see
@@ -157,6 +162,11 @@ Rechecker used to check proxies that passed at least one check and was not delet
 =head3 enabled
 
 Enable or disable rechecking
+
+=head3 strict
+
+C<true> to enable strict checking. Default is C<false> except http proxy checking (which always will be C<true> regardless this option).
+For strict checking description see L<Net::Proxy::Type/"STRICT CHECKING">.
 
 =head3 workers
 
