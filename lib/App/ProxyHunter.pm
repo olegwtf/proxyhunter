@@ -159,7 +159,7 @@ sub _start_checkers {
 				}
 				
 				my $proxy = shift @queue;
-				my ($type, $conn_time) = $class->_check($type_checker, $proxy)
+				my ($type, $conn_time) = $class->_check($type_checker, $config->checker->types, $proxy)
 					or do {
 						$proxy->delete();
 						next;
@@ -232,7 +232,7 @@ sub _start_recheckers {
 				
 				my $proxy = shift @queue;
 				my $fail;
-				if (my ($type, $conn_time) = $class->_check($type_checker, $proxy)) {
+				if (my ($type, $conn_time) = $class->_check($type_checker, $config->checker->types, $proxy)) {
 					$proxy->set('type', $type);
 					$proxy->set('conn_time', $conn_time);
 					
@@ -416,11 +416,12 @@ sub _get_queue {
 	return @rows;
 }
 
+my %name2type = reverse %Net::Proxy::Type::NAME;
 sub _check {
-	my ($class, $checker, $proxy) = @_;
+	my ($class, $checker, $types, $proxy) = @_;
 	
 	my $full_mask = 0;
-	$full_mask |= $_ for grep { $_ != UNKNOWN_PROXY && $_ != DEAD_PROXY } keys %Net::Proxy::Type::NAME;
+	$full_mask |= $_ for map { $name2type{$_} } @$types;
 	my @check_mask;
 	
 	if ($proxy->type) {
@@ -433,6 +434,7 @@ sub _check {
 	}
 	
 	for my $mask (@check_mask) {
+		next unless $mask;
 		my ($type, $conn_time) = $checker->get($proxy->host, $proxy->port, $mask);
 		
 		unless ($type == DEAD_PROXY || $type == UNKNOWN_PROXY) {

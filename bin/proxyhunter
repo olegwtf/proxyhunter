@@ -116,6 +116,13 @@ inserted into database. If proxy will not pass check (e.g. bad proxy) it will be
 
 C<true> to enable proxy checking , C<false> to disable
 
+=head3 types
+
+Will check proxy only for specified types if presented. For available proxy types see
+L<Net::Proxy::Type/"PACKAGE CONSTANTS AND VARIABLES">. Example:
+
+	types = ["SOCKS5_PROXY", "CONNECT_PROXY"]
+
 =head3 workers
 
 How many workers should perform checking in parallel. Bigger value causes higher check speed and higher resources usage

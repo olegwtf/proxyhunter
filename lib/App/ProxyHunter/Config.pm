@@ -2,6 +2,7 @@ package App::ProxyHunter::Config;
 
 use Mo qw'is build required';
 use Parse::JCONF;
+use Net::Proxy::Type;
 use Carp;
 
 has path          => (is => 'ro', required => 1);
@@ -50,6 +51,9 @@ use Mo 'default';
 has enabled      => (default => 1);
 has speed_check  => (default => 1);
 has workers      => (default => 30);
+has types        => (default => [ grep { $_ ne 'DEAD_PROXY' && $_ ne 'UNKNOWN_PROXY' }
+                                            values %Net::Proxy::Type::NAME ]
+                    );
 
 package App::ProxyHunter::Config::Rechecker;
 
