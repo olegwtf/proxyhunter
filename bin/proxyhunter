@@ -123,6 +123,22 @@ L<Net::Proxy::Type/"PACKAGE CONSTANTS AND VARIABLES">. Example:
 
 	types = ["SOCKS5_PROXY", "CONNECT_PROXY"]
 
+=head3 http_url
+
+Use specified HTTP url to check http proxies. Optional.
+
+=head3 http_keyword
+
+Which keyword we should find in response for C<http_url> to mark proxy as good. Optional.
+
+=head3 https_url
+
+Use specified HTTPS url to check https proxies. Optional.
+
+=head3 https_keyword
+
+Which keyword we should find in response for C<https_url> to mark proxy as good. Optional.
+
 =head3 workers
 
 How many workers should perform checking in parallel. Bigger value causes higher check speed and higher resources usage

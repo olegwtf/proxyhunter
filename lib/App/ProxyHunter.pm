@@ -138,7 +138,14 @@ sub _start_checkers {
 	
 	for (1..$config->checker->workers) {
 		push @coros, async {
-			my $type_checker = Net::Proxy::Type->new(http_strict => 1, noauth => 1);
+			my $type_checker = Net::Proxy::Type->new(
+				http_strict   => 1,
+				noauth        => 1,
+				url           => $config->checker->http_url,
+				keyword       => $config->checker->http_keyword,
+				https_url     => $config->checker->https_url,
+				https_keyword => $config->checker->https_keyword,
+			);
 			my $speed_checker = $config->checker->speed_check ?
 				LWP::UserAgent->new(agent => 'Mozilla 5.0', timeout => 10, parse_head => 0) :
 				undef;
@@ -200,7 +207,14 @@ sub _start_recheckers {
 	
 	for (1..$config->rechecker->workers) {
 		push @coros, async {
-			my $type_checker = Net::Proxy::Type->new(http_strict => 1, noauth => 1);
+			my $type_checker = Net::Proxy::Type->new(
+				http_strict   => 1,
+				noauth        => 1,
+				url           => $config->checker->http_url,
+				keyword       => $config->checker->http_keyword,
+				https_url     => $config->checker->https_url,
+				https_keyword => $config->checker->https_keyword,
+			);
 			my $speed_checker = $config->rechecker->speed_check ?
 				LWP::UserAgent->new(agent => 'Mozilla 5.0', timeout => 10, parse_head => 0) :
 				undef;
