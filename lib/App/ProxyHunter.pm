@@ -25,7 +25,7 @@ use constant CORO_DELAY       => 5;
 use constant SELECT_LIMIT     => 100;
 use constant MAX_SEC_IN_QUEUE => 60;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 *Net::Proxy::Type::_open_socket = sub {
 	# make Net::Proxy::Type Coro friendly

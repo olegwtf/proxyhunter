@@ -1,3 +1,9 @@
+0.03  Thu Mar 10 15:15:50 NOVT 2016
+        - ability to check proxy only for specified types
+        - ability to specify urls and keywords for proxy checking
+        - ability to enable strict mode
+        - fix https stuff about proxy checking
+
 0.02  Sat Sep 13 16:09:39 NOVT 2014
         - more correct dependencies specification
         - actualize Bing.pm for new html markup
