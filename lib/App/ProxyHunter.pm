@@ -27,6 +27,15 @@ use constant MAX_SEC_IN_QUEUE => 60;
 
 our $VERSION = '0.02';
 
+*Net::Proxy::Type::_open_socket = sub {
+	# make Net::Proxy::Type Coro friendly
+	my ($self, $host, $port) = @_;
+	my $socket = Coro::Socket->new(PeerHost => $host, PeerPort => $port, Timeout => $self->{connect_timeout}) or return;
+	$socket->blocking(0);
+	
+	return $socket;
+};
+
 sub start {
 	my $class = shift;
 	my $opts_ok = Getopt::Long::Parser->new->getoptionsfromarray(
